@@ -16,7 +16,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         AppUtilities utilities =new AppUtilities();
-        BufferedReader br=utilities.ReadFile("./test_dataset.txt");
+        BufferedReader br=utilities.ReadFile("./test_dataset - COPY.txt");
 
         String st;
         while ((st = br.readLine()) != null)
@@ -41,8 +41,11 @@ public class Main {
                         List<String> morphemes= Arrays.asList(s.formatMorphemesLexical().split("\\+"));
                         if(t.content.equals("de")||t.content.equals("da")||t.content.equals("te")||t.content.equals("ta"))
                         {
-                            System.out.println(tokens.get(tokenIndex-1).content+" - "+t.content);
-                            System.out.println(s.getMorphemes());
+                            //System.out.println(tokens.get(tokenIndex-1).content+" - "+t.content);
+                            //System.out.println(t.content);
+
+                           if(morphemes.contains("Conj"))
+                               System.out.println(tokens.get(tokenIndex-1).content+" - "+t.content);
 
                         }
                         if(!morphemes.get(morphemes.size()-1).equals("Loc"))
