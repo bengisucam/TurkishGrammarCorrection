@@ -2,9 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="75150417-ebcb-4b90-a3bd-709e76fe53f8" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TurkishGrammarCorrection.iml" beforeDir="false" afterPath="$PROJECT_DIR$/TurkishGrammarCorrection.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/TurkishGrammarCorrection/com/tgc/AppUtilities.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TurkishGrammarCorrection/com/tgc/AppUtilities.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/TurkishGrammarCorrection/com/tgc/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TurkishGrammarCorrection/com/tgc/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/tgc/AppUtilities.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tgc/AppUtilities.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/tgc/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tgc/Main.java" afterDir="false" />
     </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -23,10 +28,23 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Google Drive/Furkan&amp;Bengisu/zemberek-full.jar!/" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../zemberek-jarfile/zemberek-full.jar!/" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
   </component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true">
@@ -56,11 +74,26 @@
       <option name="presentableId" value="Default" />
       <updated>1583932389392</updated>
       <workItem from="1583932390669" duration="337000" />
+      <workItem from="1583934021676" duration="2919000" />
+      <workItem from="1583941318959" duration="5705000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="WindowStateProjectService">
     <state x="549" y="167" key="FileChooserDialogImpl" timestamp="1583932425098">
