@@ -2,10 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="75150417-ebcb-4b90-a3bd-709e76fe53f8" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/TurkishGrammarCorrection/com/tgc/AppUtilities.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TurkishGrammarCorrection/com/tgc/AppUtilities.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/TurkishGrammarCorrection/com/tgc/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TurkishGrammarCorrection/com/tgc/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/tgc/AppUtilities.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tgc/AppUtilities.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/tgc/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tgc/Main.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -74,7 +70,7 @@
       <updated>1583932389392</updated>
       <workItem from="1583932390669" duration="337000" />
       <workItem from="1583934021676" duration="2919000" />
-      <workItem from="1583941318959" duration="10737000" />
+      <workItem from="1583941318959" duration="10923000" />
     </task>
     <servers />
   </component>
