@@ -6,17 +6,19 @@ import zemberek.tokenization.Token;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Main {
 
-
-
     public static void main(String[] args) throws IOException {
 
         AppUtilities utilities =new AppUtilities();
         BufferedReader br=utilities.ReadFile("./test_dataset - COPY.txt");
+
+        List<String> wordListDeDa = new ArrayList<>();
+        List<String> wordListKi = new ArrayList<>();
 
         String st;
         while ((st = br.readLine()) != null)
@@ -26,6 +28,7 @@ public class Main {
             {
                 List<Token> tokens=utilities.ExtractTokens(sentence);
                 int tokenIndex=-1;
+                // t -> word and word index in the sentence
                 for(Token t : tokens)
                 {
 
@@ -39,18 +42,29 @@ public class Main {
                     for(SingleAnalysis s: analysisList)
                     {
                         List<String> morphemes= Arrays.asList(s.formatMorphemesLexical().split("\\+"));
-                        if(t.content.equals("de")||t.content.equals("da")||t.content.equals("te")||t.content.equals("ta"))
+                        if(t.content.equals("de") || t.content.equals("da") || t.content.equals("te") || t.content.equals("ta"))
                         {
-                            //System.out.println(tokens.get(tokenIndex-1).content+" - "+t.content);
-                            //System.out.println(t.content);
+                            wordListDeDa.add(tokens.get(tokenIndex-1).getText() + t.content);
+//                            System.out.println(tokens.get(tokenIndex-1).content+" - "+t.content);
+//                            System.out.println(t.content);
 
-                           if(morphemes.contains("Conj"))
+                           if(morphemes.contains("Conj")){
                                System.out.println(tokens.get(tokenIndex-1).content+" - "+t.content);
 
+                           }
+
                         }
-                        if(!morphemes.get(morphemes.size()-1).equals("Loc"))
+                        else if (t.content.equals("ki")){
+                            wordListKi.add(tokens.get(tokenIndex-1).getText() + t.content);
+
+                            if(morphemes.contains("Rel->Adj")){
+                                System.out.println(tokens.get(tokenIndex-1).content+" - "+t.content);
+
+                            }
+                        }
+                        else if(!morphemes.get(morphemes.size()-1).equals("Loc"))
                             continue;
-                        if(utilities.IgnoreWords.contains(t.content.toLowerCase()))
+                        else if(utilities.IgnoreWordsDeDa.contains(t.content.toLowerCase()))
                             continue;
 
                     }
@@ -58,5 +72,8 @@ public class Main {
 
             }
         }
+
+        System.out.println(wordListDeDa);
+        System.out.println(wordListKi);
     }
 }
