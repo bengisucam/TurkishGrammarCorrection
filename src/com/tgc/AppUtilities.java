@@ -15,7 +15,7 @@ import java.util.List;
 
 public class AppUtilities {
 
-    ArrayList<String> IgnoreWords = new ArrayList<String>() {
+    ArrayList<String> IgnoreWordsDeDa = new ArrayList<String>() {
         {
             add("hatta");
             add("hafta");
