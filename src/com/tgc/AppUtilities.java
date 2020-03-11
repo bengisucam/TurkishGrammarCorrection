@@ -15,7 +15,7 @@ import java.util.List;
 
 public class AppUtilities {
 
-    ArrayList<String> IgnoreWordsDeDa = new ArrayList<String>() {
+    ArrayList<String> ignoreWordsDeDa = new ArrayList<String>() {
         {
             add("hatta");
             add("hafta");
@@ -28,6 +28,34 @@ public class AppUtilities {
             add("işte");
         }
     };
+    ArrayList<String> ignoreWordsKi = new ArrayList<String>() {
+        {
+            add("helsinki");
+            add("zeki");
+            add("ırki");
+            add("tepki");
+            add("kroki");
+            add("peki");
+            add("seki");
+            add("saki");
+            add("viski");
+            add("yetki");
+            add("seçki");
+            add("tilki");
+            add("belki");
+            add("bitki");
+            add("iki");
+            add("afaki");
+            add("biçki");
+            add("içki");
+            add("haki");
+            add("fiziki");
+            add("zoraki");
+        }
+    };
+
+
+
     public static TurkishSentenceExtractor extractor= TurkishSentenceExtractor.DEFAULT;
     public final TurkishMorphology morphology;
     public final TurkishTokenizer tokenizer;
