@@ -20,8 +20,11 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
+
+
+
         AppUtilities utilities =new AppUtilities();
-        BufferedReader br=utilities.ReadFile("./test_dataset - Copy.txt");
+        BufferedReader br=utilities.ReadFile("./test_dataset.txt");
 
         String st;
         int lineIndex=0;
@@ -38,7 +41,6 @@ public class Main {
             int sentenceIndex=-1;
             for(String sentence : sentences)
             {
-
                 sentenceIndex++;
                 StringBuilder memoryOfSentence= new StringBuilder(sentence);
                 int extraIndex=0;
@@ -55,7 +57,6 @@ public class Main {
                     WordAnalysis results = utilities.morphology.analyze(t);
                     List<SingleAnalysis> analysisList=results.getAnalysisResults();
 
-                    System.out.println(analysisList);
                     for(SingleAnalysis s: analysisList)
                     {
 
@@ -71,10 +72,11 @@ public class Main {
                             {
                                 if(tokenIndex!=0)
                                 {
-                                    System.out.println(t);
+                                    memoryOfSentence.replace(tokenStart-1+extraIndex,tokenEnd+1+extraIndex,t.content);
                                     extraIndex-=1;
+                                    break;
+
                                 }
-                                break;
                             }
 
                         }
@@ -83,22 +85,35 @@ public class Main {
                         {
                             if(morphemes.contains("Conj"))
                             {
-                                System.out.println(sentence);
                                 memoryOfSentence.replace(tokenStart-1+extraIndex,tokenEnd+1+extraIndex,t.content);
-                                System.out.println(memoryOfSentence);
                                 extraIndex-=1;
                                 break;
                             }
                         }
                         //birleşik yazılan ki
-                        else if(morphemes.get(morphemes.size()-1).equals("Rel→Adj"))
+                        else if(morphemes.get(morphemes.size()-1).equals("Loc|Rel→Adj")&&sentence.substring(tokenEnd-1+extraIndex,tokenEnd+extraIndex+1).equals("ki"))
                         {
-                            System.out.println(t.getText());
+                            tokenStart=tokenEnd-1;
+                            memoryOfSentence.replace(tokenStart+extraIndex,tokenEnd+extraIndex+1," ki");
+                            extraIndex+=1;
                             break;
                         }
-                        else if(morphemes.get(morphemes.size()-1).equals("Loc")&&!utilities.ignoreWordsDeDa.contains(t.content.toLowerCase()))
+                        else if(morphemes.get(morphemes.size()-1).equals("Loc")&&!utilities.ignoreWordsDeDa .contains(t.content.toLowerCase()))
                         {
-                            break;
+                            String morph=sentence.substring(tokenEnd-1+extraIndex,tokenEnd+extraIndex+1);
+                            if(morph.equals("de")||morph.equals("da")||morph.equals("te")||morph.equals("ta"))
+                            {
+                                tokenStart=tokenEnd-1;
+                                System.out.println(sentence);
+
+                                memoryOfSentence.replace(tokenStart+extraIndex,tokenEnd+extraIndex+1," "+morph);
+                                System.out.println(memoryOfSentence);
+
+                                extraIndex+=1;
+                                break;
+
+                            }
+
                         }
 
 
