@@ -29,7 +29,7 @@ class ZemberekPython(object):
         tokenizer: TurkishTokenizer = TurkishTokenizer.builder().acceptAll().build()
         with open(path, encoding='utf-8', mode='r') as file:
             print("Opening file..")
-            data=file.read()
+            data = file.read()
             print("Finished reading..")
             count = len(tokenizer.tokenize(data))
             file.close()
@@ -46,7 +46,7 @@ class ZemberekPython(object):
         self.outSentences.clear()
         lines = self.dataset.readlines()
         print("There are {} lines in file.".format(len(lines)))
-        for line in lines:
+        for index, line in enumerate(lines):
             builtSentence = ""
             line = line.strip()
             tokens = self.Tokenize(line)
@@ -56,6 +56,8 @@ class ZemberekPython(object):
                     builtSentence = builtSentence.strip(" ")
                     newToken = newToken[1:]
                 builtSentence += newToken + ' '
+            if index == int(len(lines)/2):
+                print('%50 is done..')
             self.outSentences.append(builtSentence.strip())
         print('End time: {}'.format(datetime.now()))
 
