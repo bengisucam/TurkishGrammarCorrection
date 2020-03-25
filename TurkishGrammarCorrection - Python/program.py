@@ -1,10 +1,11 @@
 from zemberek_python.base import ZemberekPython, GrammarRule
 
-ZEMBEREK_PATH = '../../Google Drive/Furkan&Bengisu/zemberek-full.jar'
+ZEMBEREK_PATH = '../../../Google Drive/Furkan&Bengisu/zemberek-full.jar'
 zemberek = ZemberekPython(ZEMBEREK_PATH)
 zemberek = zemberek.startJVM().CreateTokenizer().CreateTurkishMorphology()
 
-dataset = '../../Google Drive/Furkan&Bengisu/Datasets/TextDataset/xaa.txt'
+dataset = '../../../Google Drive/Furkan&Bengisu/Datasets/TextDataset/xac.txt'
+
 # print(ZemberekPython.GetTokenCount())
 # zemberek.endJVM()
 # exit(0)
@@ -27,6 +28,6 @@ Rules = \
 
 zemberek.AddRules(Rules)
 
-zemberek = zemberek.open(dataset).process().write('./xaa_out.txt', mode='x')
+zemberek = zemberek.open(dataset).process().write('./xac_out.txt', mode='x')
 
 zemberek.endJVM()
