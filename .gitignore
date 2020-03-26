@@ -222,3 +222,4 @@ nb-configuration.xml
 ## OS X
 ##############################
 .DS_Store
+/TurkishGrammarCorrection - Python/xac_out.txt
