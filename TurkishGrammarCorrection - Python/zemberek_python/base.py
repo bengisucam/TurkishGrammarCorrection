@@ -66,11 +66,11 @@ class ZemberekPython(object):
     def __ApplyRules__(self, token):
         if str(token.content) in string.punctuation:
             return str(token.content)
+        tokenAsStr = str(token.content)
         for rule in self.rules:
-            tokenAsStr = str(token.content)
             if rule.Satisfies(token, self.AnalyzeWord(tokenAsStr)):
-                return rule.Apply(tokenAsStr)
-        return str(token.content)
+                tokenAsStr = rule.Apply(tokenAsStr)
+        return tokenAsStr
 
     def startJVM(self):
         try:

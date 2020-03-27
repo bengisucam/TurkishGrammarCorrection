@@ -36,6 +36,10 @@ class GrammarRule(object):
         self.CheckEnding = True
         return self
 
+    def IfUpperCase(self):
+        self.CheckUpperCase = True
+        return self
+
     def IfSecondMorphemeIs(self, morpheme="ProperNoun"):
         self.secondMorpheme = morpheme
         self.CheckSecondMorpheme = True
@@ -52,7 +56,6 @@ class GrammarRule(object):
         return self
 
     def Satisfies(self, token, analysisList) -> bool:
-        print(token.content)
         if not analysisList:
             return False
         if self.CheckContent:
@@ -65,7 +68,7 @@ class GrammarRule(object):
             if str(analysisList[0].getDictionaryItem().secondaryPos) != self.secondMorpheme:
                 return False
         if self.CheckUpperCase:
-            if not str(token)[1].isupper():
+            if not str(token.content)[0].isupper():
                 return False
         if self.CheckLowerCase:
             if not str(token)[1].islower():
@@ -88,6 +91,10 @@ class GrammarRule(object):
         return True
 
     def Apply(self, tokenStr):
+        if self.CheckUpperCase:
+            tokenStr = tokenStr[0].lower() + tokenStr[1:]
+            print(tokenStr)
+            return tokenStr
         if self.CheckFirstMorpheme:
             index = self.contents.index(tokenStr)
             return self.replacements[index]
@@ -99,16 +106,12 @@ class GrammarRule(object):
                     # TODO:Türkiye’de -> Türkiye de?
                     base = tokenStr[:length - l].strip('’\'')
                     return base + self.replacements[i]
-        if self.CheckUpperCase:
-            tokenStr = tokenStr[0].lower() + tokenStr[1:]
-            print(tokenStr)
-            return tokenStr
+
         # lowecase ise gerçekten ProperNoun değildir öyleyse bişey yapmamalıyız
         # if self.CheckLowerCase:
         #     tokenStr = tokenStr[0].upper() + tokenStr[1:]
         #     print(tokenStr)
         #     return tokenStr
-
 
     def ChangeTo(self, changeList):
         self.replacements = changeList
