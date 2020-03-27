@@ -104,8 +104,11 @@ class GrammarRule(object):
                     l = len(ending)
                     length = len(tokenStr)
                     # TODO:Türkiye’de -> Türkiye de?
-                    base = tokenStr[:length - l].strip('’\'')
-                    return base + self.replacements[i]
+                    base=str(tokenStr[:length - l]).strip('\'’')
+                    if str(tokenStr[:length - l]).endswith('\'') or str(tokenStr[:length - l]).endswith('’'):
+                        return base + str(self.replacements[i]).lstrip()
+                    else:
+                        return base + self.replacements[i]
 
         # lowecase ise gerçekten ProperNoun değildir öyleyse bişey yapmamalıyız
         # if self.CheckLowerCase:
