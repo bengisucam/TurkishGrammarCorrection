@@ -19,7 +19,6 @@ class GrammarRule(object):
         self.CheckFirstMorpheme = False
         self.CheckSecondMorpheme = False
         self.CheckUpperCase = False
-        self.CheckLowerCase = False
         self.CheckContent = False
         self.CheckLastMorpheme = False
         self.CheckEnding = False
@@ -41,6 +40,11 @@ class GrammarRule(object):
         return self
 
     def IfSecondMorphemeIs(self, morpheme="ProperNoun"):
+        self.secondMorpheme = morpheme
+        self.CheckSecondMorpheme = True
+        return self
+
+    def IfSecondMorphemeIs(self, morpheme="Abbreviation"):
         self.secondMorpheme = morpheme
         self.CheckSecondMorpheme = True
         return self
@@ -70,9 +74,6 @@ class GrammarRule(object):
         if self.CheckUpperCase:
             if not str(token.content)[0].isupper():
                 return False
-        if self.CheckLowerCase:
-            if not str(token)[1].islower():
-                return False
         if self.CheckLastMorpheme:
             lastAnalysis = analysisList[-1]
             morphemes = lastAnalysis.getMorphemes()
@@ -91,9 +92,12 @@ class GrammarRule(object):
         return True
 
     def Apply(self, tokenStr):
+        if self.CheckSecondMorpheme:
+            tokenStr = tokenStr.lower()
+            print(tokenStr)
+            return tokenStr
         if self.CheckUpperCase:
             tokenStr = tokenStr[0].lower() + tokenStr[1:]
-            print(tokenStr)
             return tokenStr
         if self.CheckFirstMorpheme:
             index = self.contents.index(tokenStr)
