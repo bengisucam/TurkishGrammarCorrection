@@ -113,7 +113,6 @@ class ZemberekPython(object):
         TurkishTokenizer: JClass = JClass('zemberek.tokenization.TurkishTokenizer')
         Token: JClass = JClass('zemberek.tokenization.Token')
         tokenizer: TurkishTokenizer = TurkishTokenizer.builder().ignoreTypes(
-            Token.Type.Punctuation,
             Token.Type.NewLine,
             Token.Type.SpaceTab
         ).build()
