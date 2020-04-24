@@ -1,0 +1,41 @@
+#%% SEQ2SEQ CONFIG
+
+
+dataset:
+    train_path: './SmallerDatasets/all10k.csv'
+    embeddings_path: './cc.tr.300.bin'
+    max_length: 40
+    max_vocab: 20000000
+
+model:
+    hidden_size: 32
+    bidirectional: True
+    
+    # 'lstm' or 'gru'
+    rnn_cell: 'lstm'
+
+    # 'NLLL' for Negative log likelihood or 'Perp' for perplexity
+    loss: 'NLLL'
+
+    # 'Adam' or 'SGD'
+    optimizer: 'SGD'
+
+    scheduler:
+        enabled: True
+        rate: 4
+
+    use_attention: True
+    n_layers: 3
+    dropout: 0.1
+
+    variable_lengths: True
+
+
+train:
+    lr: 0.04
+    teacher_forcing_ratio: 1.0
+    batch_size: 64
+    epoch: 20
+    print_every: 200
+
+save_dir: './experiment'

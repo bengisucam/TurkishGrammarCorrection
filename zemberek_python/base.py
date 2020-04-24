@@ -1,8 +1,21 @@
-import string
-from datetime import datetime
+import datetime
+import logging
+import random
+from time import time
 from typing import List
 
 from jpype import JClass, getDefaultJVMPath, java, shutdownJVM, startJVM, JString
+
+
+def mixwords(sentence: str):
+    def trans(sent, word1, word2):
+        return sent.replace(word1.strip(), "").replace(word2.strip(), word2.strip() + " " + word1).strip()
+
+    words = sentence.split()
+    sentences = []
+    for i in range(len(words) - 1):
+        sentences.append(trans(" ".join(words).strip(), words[i].strip(), words[i + 1]).strip())
+    return random.choice(sentences)
 
 
 class ZemberekPython(object):
@@ -13,6 +26,7 @@ class ZemberekPython(object):
 
         self.morphology = None
         self.tokenizer = None
+        self.spellChecker = None
         self.dataset = None
 
         self.rules: List[GrammarRule] = []
@@ -42,35 +56,51 @@ class ZemberekPython(object):
         return self
 
     def process(self):
-        print('Start time: {}'.format(datetime.now()))
+        logging.info('- start time: {}'.format(datetime.datetime.now()))
         self.outSentences.clear()
-        lines = self.dataset.readlines()
-        print("There are {} lines in file.".format(len(lines)))
+        lines = self.dataset.read().strip().split('\n')
+
+        self.dataset.close()
+        logging.info("- there are {} lines in file.".format(len(lines)))
+        last_timing=time()
+        print_ = 1
         for index, line in enumerate(lines):
             builtSentence = ""
-            line = line.strip()
+            if random.random() <= 0.25:
+                line = mixwords(line.strip()).strip()
+            else:
+                line = line.strip()
             tokens = self.Tokenize(line)
             for token in tokens:
-                newToken = self.__ApplyRules__(token)
+
+                newToken = self.__ApplyRules__(str(token.content))
                 if newToken[0] == '-':
                     builtSentence = builtSentence.strip(" ")
                     newToken = newToken[1:]
                 builtSentence += newToken + ' '
-            if index == int(len(lines)/2):
-                print('%50 is done..')
+            if index > 0 and index % (int(len(lines) / 400)) == 0:
+                if print_ > 0:
+                    time_passed=int(time()-last_timing)
+                    estimated_time_left=(399-print_)*time_passed
+                    estimated_time_left_hours=str(datetime.timedelta(seconds=estimated_time_left))
+                    logging.info('- %{} is done at {} -- estimated time left: {}'.format(float(print_ / 4), datetime.datetime.now(),estimated_time_left_hours)),
+                else:
+                    logging.info('- %{} is done at {}'.format(float(print_ / 4), datetime.datetime.now())),
+                last_timing = time()
+                print_ += 1
             self.outSentences.append(builtSentence.strip())
-        print('End time: {}'.format(datetime.now()))
+        logging.info('- end time: {}'.format(datetime.datetime.now()))
 
         return self
 
     def __ApplyRules__(self, token):
-        if str(token.content) in string.punctuation:
-            return str(token.content)
-        tokenAsStr = str(token.content)
+        # if str(token.content) in string.punctuation:
+        #     return str(token.content)
+        analysis=self.AnalyzeWord(token)
         for rule in self.rules:
-            if rule.Satisfies(token, self.AnalyzeWord(tokenAsStr)):
-                tokenAsStr = rule.Apply(tokenAsStr)
-        return tokenAsStr
+            if rule.Satisfies(token, analysis):
+                token = rule.Apply(token)
+        return token
 
     def startJVM(self):
         try:
@@ -89,9 +119,9 @@ class ZemberekPython(object):
         self.rules.append(rule)
 
     def AddRules(self, rules):
-        print('Adding Rules..')
+        logging.info('- adding Rules..')
         for i, rule in enumerate(rules):
-            print('Rule {} - {} '.format(i, rule))
+            logging.info('- rule {} - {} '.format(i, rule))
             self.AddRule(rule)
 
     def endJVM(self):
@@ -107,6 +137,16 @@ class ZemberekPython(object):
         self.morphology = TurkishMorphology.createWithDefaults()
         return self
 
+    def Normalize(self, token):
+
+        if not isinstance(token, str):
+            token = str(token.content)
+        if self.spellChecker.suggestForWord(JString(token)):
+            if not self.spellChecker.check(JString(token)):
+                return str(self.spellChecker.suggestForWord(JString(token))[0])
+
+        return str(token)
+
     def CreateTokenizer(self):
         if not self.running:
             return None
@@ -117,6 +157,14 @@ class ZemberekPython(object):
             Token.Type.SpaceTab
         ).build()
         self.tokenizer = tokenizer
+        return self
+
+    def CreateSpellChecker(self):
+        TurkishSpellChecker: JClass = JClass(
+            'zemberek.normalization.TurkishSpellChecker'
+        )
+
+        self.spellChecker: TurkishSpellChecker = TurkishSpellChecker(self.morphology)
         return self
 
     def Tokenize(self, sentence: str):
@@ -132,5 +180,3 @@ class ZemberekPython(object):
         WordAnalysis: JClass = JClass('zemberek.morphology.analysis.WordAnalysis')
         results: WordAnalysis = self.morphology.analyze(word)
         return results.getAnalysisResults()
-
-
