@@ -1,9 +1,11 @@
 import argparse
 
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
-def merge2CSV(inputs, labels, out_path):
+def merge2CSV(inputs, out_path):
+    labels = ['src', 'tgt']
     if len(inputs) is not len(labels):
         print("Label and Input size does not match!")
         exit(1)
@@ -16,11 +18,22 @@ def merge2CSV(inputs, labels, out_path):
     df.to_csv(out_path)
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--f', '--list', dest='files', nargs='+', help='List of files to merge', required=True)
-    parser.add_argument('--l', '--list', dest='labels', nargs='+', help='Labels of files to merge', required=True)
-    parser.add_argument('--out', action='store', dest='out', help='Out path with .txt at the end')
-    opt = parser.parse_args()
+def splitCSV(data):
+    df = pd.read_csv(data, index_col='id', quoting=0)
+    train, test = train_test_split(df, test_size=0.1)
+    train, dev = train_test_split(train, test_size=0.125)
 
-    merge2CSV(opt.files, opt.labels, opt.out)
+    train.to_csv('../data/train/train.csv')
+    test.to_csv('../data/train/test.csv')
+    dev.to_csv('../data/train/dev.csv')
+
+
+if __name__ == "__main__":
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--f', '--list', dest='files', nargs='+', help='List of files to merge', required=True)
+    # parser.add_argument('--out', action='store', dest='out', help='Out path with .txt at the end')
+    # opt = parser.parse_args()
+
+    splitCSV('../data/train/dataset_seq2seq.csv')
+    exit()
+    merge2CSV(['../data/train/source.txt', '../data/train/target.txt'], '../data/train/dataset_seq2seq.csv')

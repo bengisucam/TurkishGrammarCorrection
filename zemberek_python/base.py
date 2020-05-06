@@ -1,6 +1,7 @@
 import datetime
 import logging
 import random
+from os.path import join
 from time import time
 from typing import List
 
@@ -26,6 +27,7 @@ class ZemberekPython(object):
 
         self.morphology = None
         self.tokenizer = None
+        self.normalizer = None
         self.spellChecker = None
         self.dataset = None
 
@@ -55,22 +57,27 @@ class ZemberekPython(object):
             outfile.close()
         return self
 
-    def process(self):
+    def process(self, min_tok=4, max_tok=15):
         logging.info('- start time: {}'.format(datetime.datetime.now()))
         self.outSentences.clear()
+        self.outsource=[]
         lines = self.dataset.read().strip().split('\n')
 
         self.dataset.close()
         logging.info("- there are {} lines in file.".format(len(lines)))
-        last_timing=time()
+        last_timing = time()
         print_ = 1
         for index, line in enumerate(lines):
             builtSentence = ""
-            if random.random() <= 0.25:
-                line = mixwords(line.strip()).strip()
-            else:
-                line = line.strip()
+            # if random.random() <= 0.25:
+            #     line = mixwords(line.strip()).strip()
+            # else:
+
+            line = line.strip()
+
             tokens = self.Tokenize(line)
+            if not min_tok <= len(tokens) <= max_tok:
+                continue
             for token in tokens:
 
                 newToken = self.__ApplyRules__(str(token.content))
@@ -80,23 +87,30 @@ class ZemberekPython(object):
                 builtSentence += newToken + ' '
             if index > 0 and index % (int(len(lines) / 400)) == 0:
                 if print_ > 0:
-                    time_passed=int(time()-last_timing)
-                    estimated_time_left=(399-print_)*time_passed
-                    estimated_time_left_hours=str(datetime.timedelta(seconds=estimated_time_left))
-                    logging.info('- %{} is done at {} -- estimated time left: {}'.format(float(print_ / 4), datetime.datetime.now(),estimated_time_left_hours)),
+                    time_passed = int(time() - last_timing)
+                    estimated_time_left = (399 - print_) * time_passed
+                    estimated_time_left_hours = str(datetime.timedelta(seconds=estimated_time_left))
+                    logging.info('- %{} is done at {} -- estimated time left: {}'.format(float(print_ / 4),
+                                                                                         datetime.datetime.now(),
+                                                                                         estimated_time_left_hours)),
                 else:
                     logging.info('- %{} is done at {}'.format(float(print_ / 4), datetime.datetime.now())),
                 last_timing = time()
                 print_ += 1
-            self.outSentences.append(builtSentence.strip())
+            if builtSentence.strip() !=line.strip():
+                self.outSentences.append(builtSentence.strip())
+                self.outsource.append(f'{line.strip()}')
+
         logging.info('- end time: {}'.format(datetime.datetime.now()))
+        with open('./data/xaa_target.txt','x',encoding='utf-8') as target:
+            target.write('\n'.join(self.outsource))
 
         return self
 
     def __ApplyRules__(self, token):
         # if str(token.content) in string.punctuation:
         #     return str(token.content)
-        analysis=self.AnalyzeWord(token)
+        analysis = self.AnalyzeWord(token)
         for rule in self.rules:
             if rule.Satisfies(token, analysis):
                 token = rule.Apply(token)
@@ -137,15 +151,18 @@ class ZemberekPython(object):
         self.morphology = TurkishMorphology.createWithDefaults()
         return self
 
-    def Normalize(self, token):
+    def SpellCheckToken(self, token):
 
         if not isinstance(token, str):
             token = str(token.content)
-        if self.spellChecker.suggestForWord(JString(token)):
-            if not self.spellChecker.check(JString(token)):
-                return str(self.spellChecker.suggestForWord(JString(token))[0])
 
+        if not self.spellChecker.check(JString(token)):
+            if self.spellChecker.suggestForWord(JString(token)):
+                return str(self.spellChecker.suggestForWord(JString(token))[0])
         return str(token)
+
+    def NormalizeSentence(self, sentence):
+        return str(self.normalizer.normalize(JString(sentence)))
 
     def CreateTokenizer(self):
         if not self.running:
@@ -154,9 +171,30 @@ class ZemberekPython(object):
         Token: JClass = JClass('zemberek.tokenization.Token')
         tokenizer: TurkishTokenizer = TurkishTokenizer.builder().ignoreTypes(
             Token.Type.NewLine,
-            Token.Type.SpaceTab
+            Token.Type.SpaceTab,
+            # Token.Type.Punctuation,
+            #
+            # Emoji,
+            # Emoticon,
+            # RomanNumeral,
+            # Number,
+            # PercentNumeral,
+
         ).build()
         self.tokenizer = tokenizer
+        return self
+
+    def CreateNormalizer(self):
+        TurkishSentenceNormalizer: JClass = JClass(
+            'zemberek.normalization.TurkishSentenceNormalizer'
+        )
+        Paths: JClass = JClass('java.nio.file.Paths')
+
+        self.normalizer = TurkishSentenceNormalizer(self.morphology, Paths.get(join('..', 'data', 'normalization')),
+                                                    Paths.get(
+                                                        join('..', 'data', 'lm', 'lm.2gram.slm')
+                                                    )
+                                                    )
         return self
 
     def CreateSpellChecker(self):
