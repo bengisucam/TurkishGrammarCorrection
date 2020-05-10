@@ -1,11 +1,16 @@
-<!DOCTYPE html>
+{% load static %}
+
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <title>TurkishGrammarCorrection</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
+
     <body>
     <h1>Welcome</h1>
+    <p>Paragraf</p>
     <a href="{% url 'simpleForm' %}">Go to Form</a>
 <!--    <a href="form">Go to</a>-->
     </body>
