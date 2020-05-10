@@ -1,4 +1,6 @@
 from __future__ import print_function
+
+import logging
 import os
 import time
 import shutil
@@ -65,7 +67,7 @@ class Checkpoint(object):
         path = self._path
 
         if not os.path.exists(path):
-            shutil.rmtree(path)
+            # shutil.rmtree(path)
             os.makedirs(path)
         torch.save({'epoch': self.epoch,
                     'step': self.step,
@@ -78,7 +80,7 @@ class Checkpoint(object):
             dill.dump(self.input_vocab, fout)
         with open(os.path.join(path, self.OUTPUT_VOCAB_FILE), 'wb') as fout:
             dill.dump(self.output_vocab, fout)
-
+        logging.info('- saved models to {}'.format(path))
         return path
 
     @classmethod

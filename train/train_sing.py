@@ -3,7 +3,6 @@ import logging
 
 from train.train_seq import train
 
-
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser()
     # parser.add_argument('--config', action='store', dest='config',
@@ -13,4 +12,4 @@ if __name__ == "__main__":
     # opt = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
     config_path = 'Configuration/config.yaml'
-    train(config_path, './Experiments')
+    train(config_path, './Experiments', 'Experiment01')
