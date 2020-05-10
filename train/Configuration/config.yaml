@@ -7,19 +7,18 @@ dataset:
     test_path: '../data/train/test.csv'
 
     embeddings:
-        use: False
-        path: '../cc.tr.300.bin'
+        use: True
         update: True
 
 
     max_length: 16
-    max_vocab: 20000000
+    max_vocab: 70000
 
 model:
-    hidden_size: 256
+    hidden_size: 300
     bidirectional: False
 
-    device: 'cpu'
+    device: 'cuda'
     # 'lstm' or 'gru'
     rnn_cell: 'lstm'
 
@@ -31,7 +30,7 @@ model:
 
     scheduler:
         enabled: True
-        rate: 4
+        rate: 2
 
     use_attention: True
     n_layers: 2
@@ -43,9 +42,9 @@ model:
 train:
     lr: 0.001
     teacher_forcing_ratio: 1.25
-    batch_size: 512
-    epoch: 40
-    early_stop_threshold: 4
-    print_every: 250
+    batch_size: 56
+    epoch: 20
+    early_stop_threshold: 2
+    print_every: 1000
 
 save_dir: './Experiments'

@@ -16,6 +16,11 @@ __pycache__/
 # C extensions
 *.so
 
+
+.vector_cache/
+*.yml
+
+
 # Distribution / packaging
 .Python
 build/

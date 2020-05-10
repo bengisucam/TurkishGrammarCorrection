@@ -11,6 +11,7 @@ import torchtext
 import yaml
 from fasttext import util
 from torch.optim.lr_scheduler import StepLR
+from torchtext.vocab import FastText
 
 from seq2seq.dataset import TargetField, SourceField
 from seq2seq.loss import Perplexity, NLLLoss
@@ -89,19 +90,19 @@ def train(config_file, save_dir):
         fields=tv_datafields,
         skip_header=True
     )
+    embeddings = None
+    if bool(config['dataset']['embeddings']['use']):
+        embeddings = FastText(language='tr')
+        embeddings.dim = hidden_size
     max_vocab_size = int(config['dataset']['max_vocab'])
-    src.build_vocab(train, max_size=max_vocab_size)
+    src.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
     tgt.build_vocab(train, max_size=max_vocab_size)
 
     logging.info('- vocab size: {}'.format(len(src.vocab)))
+    logging.info('- embedding size: {}'.format(src.vocab.vectors.size()))
     input_vocab = src.vocab
     output_vocab = tgt.vocab
     #
-
-    embeddings = None
-    if bool(config['dataset']['embeddings']['use']):
-        ftModel = Model(config['dataset']['embeddings']['path']).reduce_dim(hidden_size)
-        embeddings = ftModel.toVecList(input_vocab=input_vocab)
 
     device = config['model']['device']
     if not torch.cuda.is_available():
@@ -126,8 +127,8 @@ def train(config_file, save_dir):
                          dropout_p=float(config['model']['dropout_output']),
                          input_dropout_p=float(config['model']['dropout_input']),
                          variable_lengths=config['model']['variable_lengths'],
-                         embedding=embeddings,
-                         update_embedding=config['dataset']['embeddings']['update'])
+                         embedding=src.vocab.vectors,
+                         update_embedding=bool(config['dataset']['embeddings']['update']))
     decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectional else hidden_size,
                          n_layers=int(config['model']['n_layers']),
                          rnn_cell=str(config['model']['rnn_cell']),
