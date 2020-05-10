@@ -2,9 +2,10 @@
 
 
 dataset:
-    train_path: '../data/train/train.csv'
-    dev_path: '../data/train/dev.csv'
-    test_path: '../data/train/test.csv'
+    path: '../data/train/'
+    train: 'train.csv'
+    dev: 'dev.csv'
+    test: 'test.csv'
 
     embeddings:
         use: True
@@ -12,7 +13,7 @@ dataset:
 
 
     max_length: 16
-    max_vocab: 70000
+    max_vocab: 100000
 
 model:
     hidden_size: 300
@@ -42,9 +43,10 @@ model:
 train:
     lr: 0.001
     teacher_forcing_ratio: 1.25
-    batch_size: 56
+    batch_size: 32
     epoch: 20
     early_stop_threshold: 2
     print_every: 1000
+    checkpoint_every: 2
 
 save_dir: './Experiments'
