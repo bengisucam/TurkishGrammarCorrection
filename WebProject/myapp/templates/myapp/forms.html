@@ -1,7 +1,39 @@
 {% load static %}
-<form method="post" novalidate>
-  <div class="form-group">
-    <label for="exampleFormControlTextarea1">Example textarea</label>
-    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+<!--<html>-->
+<!--<head>-->
+<!--        <link rel="stylesheet" href="{% static 'css/style.css' %}">-->
+<!--        <meta charset="UTF-8">-->
+<!--        <title>TurkishGrammarCorrection</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--  <div className="wrapper" id="wrapper">-->
+<!--    <div class="form-group">-->
+<!--      <label for="form">Check your grammar!</label>-->
+<!--      <textarea class="form-control" id="form" rows="10" placeholder="Write your text here..."></textarea>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</body>-->
+<!--</html>-->
+<html>
+<head>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/form.css' %}">
+        <meta charset="UTF-8">
+        <title>TurkishGrammarCorrection</title>
+</head>
+<body>
+  <div id="form-wrapper">
+
+      <form id="paper" method="get" action="">
+
+          <div id="margin">Title: <input id="title" type="text" name="title"></div>
+          <textarea placeholder="Enter something funny." id="text" name="text" rows="4" style="overflow: hidden; word-wrap: break-word; resize: none; height: 160px; "></textarea>
+          <textarea placeholder="Enter something funny." id="text" name="text" rows="4" style="overflow: hidden; word-wrap: break-word; resize: none; height: 160px; "></textarea>
+        <br>
+          <input id="button" type="submit" value="Create">
+
+      </form>
+
   </div>
-</form>
+</body>
+</html>
