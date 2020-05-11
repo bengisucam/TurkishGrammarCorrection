@@ -103,7 +103,7 @@ class DecoderRNN(BaseRNN):
         return predicted_softmax, hidden, attn
 
     def forward(self, inputs=None, encoder_hidden=None, encoder_outputs=None,
-                function=F.log_softmax, teacher_forcing_ratio=0):
+                function=F.log_softmax, teacher_forcing_ratio=1):
         ret_dict = dict()
         if self.use_attention:
             ret_dict[DecoderRNN.KEY_ATTN_SCORE] = list()

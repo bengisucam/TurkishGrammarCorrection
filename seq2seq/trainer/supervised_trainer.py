@@ -70,7 +70,7 @@ class SupervisedTrainer(object):
         return loss.get_loss()
 
     def _train_epoches(self, data, model, n_epochs, start_epoch, start_step,
-                       dev_data=None, teacher_forcing_ratio=0, deviceName='cuda'):
+                       dev_data=None,test_data=None, teacher_forcing_ratio=0, deviceName='cuda'):
 
         print_loss_total = 0  # Reset every print_every
         epoch_loss_total = 0  # Reset every epoch
@@ -151,16 +151,18 @@ class SupervisedTrainer(object):
             logging.info(log_msg)
 
             if epoch % self.checkpoint_every == 0 or step == total_steps:
-                self._save(model, epoch, step, data)
+                self._save(model, epoch, step, data,test_data=test_data,deviceName=deviceName)
         return model
 
-    def _save(self, model, epoch, step, data):
+    def _save(self, model, epoch, step, data, test_data,deviceName):
         Checkpoint(model=model,
                    optimizer=self.optimizer,
                    epoch=epoch, step=step,
                    input_vocab=data.fields[seq2seq.src_field_name].vocab,
                    output_vocab=data.fields[seq2seq.tgt_field_name].vocab).save(self.expt_dir,
                                                                                 f'{self.save_name}\\{epoch}')
+        test_loss, test_acc = self.evaluator.evaluate(model, test_data, torch.device(deviceName))
+        logging.info(f'Test Loss: {test_loss}, Test Accuracy: {test_acc}')
 
     def _save_final(self, model, epoch, step, data):
         Checkpoint(model=model,
@@ -195,7 +197,7 @@ class SupervisedTrainer(object):
         # print("- optimizer: %s, scheduler: %s" % (self.optimizer.optimizer, self.optimizer.scheduler))
 
         self._train_epoches(data, model, num_epochs,
-                            start_epoch, step, dev_data=dev_data,
+                            start_epoch, step, dev_data=dev_data,test_data=test_data,
                             teacher_forcing_ratio=teacher_forcing_ratio, deviceName=deviceName)
         self._save_final(model, num_epochs, step, data)
         test_loss, test_acc = self.evaluator.evaluate(model, test_data, torch.device(deviceName))
