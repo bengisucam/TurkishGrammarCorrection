@@ -3,7 +3,7 @@
 
 dataset:
     path: '../data/train/'
-    train: 'train.csv'
+    train: 'train100k.csv'
     dev: 'dev.csv'
     test: 'test.csv'
 
@@ -12,12 +12,12 @@ dataset:
         update: True
 
 
-    max_length: 16
-    max_vocab: 100000
+    max_length: 24
+    max_vocab: 120000
 
 model:
     hidden_size: 300
-    bidirectional: False
+    bidirectional: True
 
     device: 'cuda'
     # 'lstm' or 'gru'
@@ -31,7 +31,7 @@ model:
 
     scheduler:
         enabled: True
-        rate: 2
+        rate: 1
 
     use_attention: True
     n_layers: 2
@@ -44,9 +44,9 @@ train:
     lr: 0.001
     teacher_forcing_ratio: 1.25
     batch_size: 32
-    epoch: 20
+    epoch: 40
     early_stop_threshold: 2
-    print_every: 1000
+    print_every: 200
     checkpoint_every: 2
 
 save_dir: './Experiments'

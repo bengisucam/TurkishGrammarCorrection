@@ -1,10 +1,6 @@
-import argparse
-import glob
 import logging
-import os
 import time
 
-import fasttext
 import torch
 import torchtext
 import yaml
@@ -16,7 +12,6 @@ from seq2seq.loss import Perplexity, NLLLoss
 from seq2seq.models import EncoderRNN, DecoderRNN, Seq2seq
 from seq2seq.optim import Optimizer
 from seq2seq.trainer import SupervisedTrainer
-from seq2seq.util.checkpoint import Checkpoint
 from train.predict import predict
 
 
@@ -46,12 +41,12 @@ def train(config_file, save_dir, save_name):
     embeddings = None
     if bool(config['dataset']['embeddings']['use']):
         embeddings = FastText(language='tr')
-        embeddings.dim = hidden_size
     max_vocab_size = int(config['dataset']['max_vocab'])
     src.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
-    tgt.build_vocab(train, max_size=max_vocab_size)
+    tgt.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
 
-    logging.info('- vocab size: {}'.format(len(src.vocab)))
+    logging.info('- src vocab size: {}'.format(len(src.vocab)))
+    logging.info('- tgt vocab size: {}'.format(len(tgt.vocab)))
     logging.info('- embedding size: {}'.format(src.vocab.vectors.size()))
     input_vocab = src.vocab
     output_vocab = tgt.vocab
@@ -85,8 +80,8 @@ def train(config_file, save_dir, save_name):
     decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectional else hidden_size,
                          n_layers=int(config['model']['n_layers']),
                          rnn_cell=str(config['model']['rnn_cell']),
-                         # dropout_p=float(config['model']['dropout_output']),
-                         # input_dropout_p=float(config['model']['dropout_input']),
+                         dropout_p=float(config['model']['dropout_output']),
+                         input_dropout_p=float(config['model']['dropout_input']),
                          use_attention=bool(config['model']['use_attention']),
                          bidirectional=bidirectional,
                          eos_id=tgt.eos_id, sos_id=tgt.sos_id)
@@ -100,7 +95,7 @@ def train(config_file, save_dir, save_name):
     if str(config['model']['optimizer']) == 'SGD':
         optimizer = Optimizer(torch.optim.SGD(seq2seq.parameters(), lr=lr), max_grad_norm=5)
     else:
-        optimizer = Optimizer(torch.optim.Adam(seq2seq.parameters(), lr=lr))
+        optimizer = Optimizer(torch.optim.Adam(seq2seq.parameters(), lr=lr), max_grad_norm=5)
     if config['model']['scheduler']['enabled']:
         scheduler = StepLR(optimizer.optimizer, config['model']['scheduler']['rate'])
         optimizer.set_scheduler(scheduler)
