@@ -99,7 +99,8 @@ def train(config_file, save_dir, save_name):
     if config['model']['scheduler']['enabled']:
         scheduler = StepLR(optimizer.optimizer, config['model']['scheduler']['rate'])
         optimizer.set_scheduler(scheduler)
-    logging.info('- starting training\n')
+    logging.info('- starting training')
+    logging.info(f'- device {device}\n')
     t = SupervisedTrainer(loss=loss, batch_size=int(config['train']['batch_size']),
                           print_every=int(config['train']['print_every']),
                           early_stop_threshold=int(config['train']['early_stop_threshold']),
