@@ -3,7 +3,7 @@
 
 dataset:
     path: '../data/train/'
-    train: 'train.csv'
+    train: 'test.csv'
     dev: 'dev.csv'
     test: 'test.csv'
 
@@ -31,7 +31,7 @@ model:
 
     scheduler:
         enabled: True
-        rate: 2
+        rate: 1
 
     use_attention: True
     n_layers: 2
@@ -41,9 +41,9 @@ model:
     variable_lengths: True
 
 train:
-    lr: 0.001
+    lr: 0.0006
     teacher_forcing_ratio: 1.25
-    batch_size: 64
+    batch_size: 32
     epoch: 40
     early_stop_threshold: 2
     print_every: 200
