@@ -3,7 +3,7 @@
 
 dataset:
     path: '../data/train/'
-    train: 'test.csv'
+    train: 'train100k.csv'
     dev: 'dev.csv'
     test: 'test.csv'
 
@@ -12,7 +12,7 @@ dataset:
         update: True
 
 
-    max_length: 16
+    max_length: 10000
     max_vocab: 200000
 
 model:
@@ -43,10 +43,10 @@ model:
 train:
     lr: 0.0006
     teacher_forcing_ratio: 1.25
-    batch_size: 32
+    batch_size: 64
     epoch: 40
     early_stop_threshold: 2
-    print_every: 200
+    print_every: 5
     checkpoint_every: 2
 
 save_dir: './Experiments'
