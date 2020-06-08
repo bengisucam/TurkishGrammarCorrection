@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <meta charset="UTF-8">
+        <title>TurkishGrammarCorrection</title>
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <h1>Turkish Grammar Corrector</h1>
+            <a id="link-to-form" href="{% url 'form' %}">Let's Start!</a>
+            <!--    <a href="form">Go to</a>-->
+        </div>
+    </body>
+
+
+</html>
