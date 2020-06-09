@@ -23,3 +23,5 @@ def submit_text_view(request):
     print(input_text)
     context = {'input_text': input_text}
     return output_text_view(request, context)
+
+
