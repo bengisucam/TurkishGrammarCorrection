@@ -1,6 +1,6 @@
-#wrapper{
+#form-wrapper{
     /*background-color: #0f121f;*/
-    background-image: linear-gradient(to bottom left, rgba(30, 13, 13, 0.67), rgba(145, 127, 23, 0.62)),
+    background-image: linear-gradient(to bottom left, rgba(30, 13, 13, 0.67), rgba(145, 127, 23, 0.2)),
         url('/static/img/paper.jpg');
     background-size: cover;
     opacity: 100%;
@@ -15,4 +15,38 @@
     left: 0;
     top: 0;
 
+}
+
+.form{
+    padding: 20px 50px;
+    bottom: 10em;
+    align-self: center;
+    border-radius: 20px;
+    align-items: initial;
+
+}
+
+
+
+.form input, .form textarea{
+    margin: 10px 10px 10px 10px;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.form select{
+    margin: 15px;
+    display: block;
+    width: 100px;
+    
+}
+
+.form input[type="submit"]{
+    font-size: 1.2em;
+    border-radius: 5px;
+    color: mintcream;
+    background: #08152e;
+    text-align: center;
+    align-self: flex-start;
+    width: 100px;
 }
