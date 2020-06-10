@@ -1,12 +1,10 @@
 import logging
 
-import numpy
 import torch
 import torchtext
 from torch.optim.lr_scheduler import StepLR
-from torchtext.vocab import FastText
 
-from deneme import BiLSTM
+from seq2seq.models.bilstm import BiLSTM
 from seq2seq.dataset import SourceField, TargetField
 from seq2seq.loss import NLLLoss
 from seq2seq.models import EncoderRNN, DecoderRNN, Seq2seq

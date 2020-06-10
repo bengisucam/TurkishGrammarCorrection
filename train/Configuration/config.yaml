@@ -46,7 +46,7 @@ train:
     batch_size: 32
     epoch: 40
     early_stop_threshold: 2
-    print_every: 50
+    print_every: 250
     checkpoint_every: 2
 
 save_dir: './Experiments'
