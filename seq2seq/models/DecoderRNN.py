@@ -63,7 +63,7 @@ class DecoderRNN(BaseRNN):
     def __init__(self, vocab_size, max_len, hidden_size,
                  sos_id, eos_id,
                  n_layers=1, rnn_cell='gru', bidirectional=False,
-                 input_dropout_p=0, dropout_p=0, use_attention=False):
+                 input_dropout_p=0, dropout_p=0, use_attention=False,embedder=None):
         super(DecoderRNN, self).__init__(vocab_size, max_len, hidden_size,
                                          input_dropout_p, dropout_p,
                                          n_layers, rnn_cell)
@@ -79,17 +79,18 @@ class DecoderRNN(BaseRNN):
 
         self.init_input = None
 
-        self.embedding = nn.Embedding(self.output_size, self.hidden_size)
+        self.embedding=embedder
         if use_attention:
             self.attention = Attention(self.hidden_size)
 
         self.out = nn.Linear(self.hidden_size, self.output_size)
 
 
-    def forward_step(self, input_var, hidden, encoder_outputs, function,char_embeds):
-        batch_size = char_embeds.size(0)
-        output_size = char_embeds.size(1)
-        embedded_old = self.embedding(input_var)
+    def forward_step(self, input_var, hidden, encoder_outputs, function):
+
+        batch_size = input_var.size(0)
+        output_size = input_var.size(1)
+        char_embeds=self.embedding(input_var)
         embedded = self.input_dropout(char_embeds)
         output, hidden = self.rnn(embedded, hidden)
 
@@ -102,7 +103,7 @@ class DecoderRNN(BaseRNN):
                                                                                                            -1)
         return predicted_softmax, hidden, attn
 
-    def forward(self, inputs=None, encoder_hidden=None, encoder_outputs=None,char_embeds=None,
+    def forward(self, inputs=None, encoder_hidden=None, encoder_outputs=None,
                 function=F.log_softmax, teacher_forcing_ratio=1):
         ret_dict = dict()
         if self.use_attention:
@@ -137,7 +138,7 @@ class DecoderRNN(BaseRNN):
         if use_teacher_forcing:
             decoder_input = inputs[:, :-1]
             decoder_output, decoder_hidden, attn = self.forward_step(decoder_input, decoder_hidden, encoder_outputs,
-                                                                     function=function, char_embeds=char_embeds)
+                                                                     function=function)
 
             for di in range(decoder_output.size(1)):
                 step_output = decoder_output[:, di, :]

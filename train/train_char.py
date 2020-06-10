@@ -86,9 +86,11 @@ decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2,
                      input_dropout_p=float(config['model']['dropout_input']),
                      use_attention=bool(config['model']['use_attention']),
                      bidirectional=bidirectional,
-                     eos_id=tgt.eos_id, sos_id=tgt.sos_id)
+                     eos_id=tgt.eos_id, sos_id=tgt.sos_id,
+                     embedder=bilstm)
 
 seq2seq = Seq2seq(bilstm, encoder, decoder)
+
 
 if device == 'cuda':
     seq2seq.cuda()
@@ -108,6 +110,7 @@ t = SupervisedTrainer(loss=loss, batch_size=int(config['train']['batch_size']),
                       early_stop_threshold=int(config['train']['early_stop_threshold']),
                       save_name="save_name",
                       checkpoint_every=int(config['train']['checkpoint_every']))
+print(f'Allocated GPU Mem: {torch.cuda.memory_allocated(0)} - Cached Mem: { torch.cuda.memory_cached(0)} - Free Mem: {torch.cuda.get_device_properties(0).total_memory -torch.cuda.memory_allocated(0)}')
 
 seq2seq = t.train(seq2seq, train, dev_data=dev, test_data=test,
                   num_epochs=config['train']['epoch'],

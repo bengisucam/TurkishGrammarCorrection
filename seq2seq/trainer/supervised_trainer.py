@@ -48,8 +48,8 @@ class SupervisedTrainer(object):
         if not os.path.isabs(expt_dir):
             expt_dir = os.path.join(os.getcwd(), expt_dir)
         self.expt_dir = expt_dir
-        if not os.path.exists(os.path.join(self.expt_dir,save_name)):
-            os.makedirs(os.path.join(self.expt_dir,save_name))
+        if not os.path.exists(os.path.join(self.expt_dir, save_name)):
+            os.makedirs(os.path.join(self.expt_dir, save_name))
         self.batch_size = batch_size
 
     def _train_batch(self, input_variable, input_lengths, target_variable, model, teacher_forcing_ratio):
@@ -62,18 +62,9 @@ class SupervisedTrainer(object):
         loss.reset()
         for step, step_output in enumerate(decoder_outputs):
             batch_size = target_variable.size(0)
-            step_o=step_output.contiguous().view(batch_size, -1)
+            step_o = step_output.contiguous().view(batch_size, -1)
+            loss.eval_batch(step_o, target_variable[:, step + 1])
 
-            try:
-                loss.eval_batch(step_o, target_variable[:, step + 1])
-            except IndexError as ie:
-                # print(f'Decouder outputs size: {len(decoder_outputs)}')
-                # print(step_o.size())
-                # print(batch_size)
-                # print(step)
-                # print(target_variable.size())
-                # exit()
-                pass
         # Backward propagation
         model.zero_grad()
         loss.backward()
@@ -82,7 +73,7 @@ class SupervisedTrainer(object):
         return loss.get_loss()
 
     def _train_epoches(self, data, model, n_epochs, start_epoch, start_step,
-                       dev_data=None,test_data=None, teacher_forcing_ratio=0, deviceName='cuda'):
+                       dev_data=None, test_data=None, teacher_forcing_ratio=0, deviceName='cuda'):
 
         print_loss_total = 0  # Reset every print_every
         epoch_loss_total = 0  # Reset every epoch
@@ -158,14 +149,14 @@ class SupervisedTrainer(object):
                 model.train(mode=True)
             else:
                 self.optimizer.update(epoch_loss_avg, epoch)
-            log_msg += f' in {dt.timedelta(seconds=time.time()-epoch_time)}'
+            log_msg += f' in {dt.timedelta(seconds=time.time() - epoch_time)}'
             logging.info(log_msg)
 
             if epoch % self.checkpoint_every == 0 or step == total_steps:
-                self._save(model, epoch, step, data,test_data=test_data,deviceName=deviceName)
+                self._save(model, epoch, step, data, test_data=test_data, deviceName=deviceName)
         return model
 
-    def _save(self, model, epoch, step, data, test_data,deviceName):
+    def _save(self, model, epoch, step, data, test_data, deviceName):
         Checkpoint(model=model,
                    optimizer=self.optimizer,
                    epoch=epoch, step=step,
@@ -208,7 +199,7 @@ class SupervisedTrainer(object):
         # print("- optimizer: %s, scheduler: %s" % (self.optimizer.optimizer, self.optimizer.scheduler))
 
         self._train_epoches(data, model, num_epochs,
-                            start_epoch, step, dev_data=dev_data,test_data=test_data,
+                            start_epoch, step, dev_data=dev_data, test_data=test_data,
                             teacher_forcing_ratio=teacher_forcing_ratio, deviceName=deviceName)
         self._save_final(model, num_epochs, step, data)
         test_loss, test_acc = self.evaluator.evaluate(model, test_data, torch.device(deviceName))
