@@ -16,8 +16,8 @@ dataset:
     max_vocab: 200000
 
 model:
-    hidden_size: 300
-    bidirectional: True
+    hidden_size: 128
+    bidirectional: False
 
     device: 'cuda'
     # 'lstm' or 'gru'
@@ -41,12 +41,12 @@ model:
     variable_lengths: True
 
 train:
-    lr: 0.0006
+    lr: 0.002
     teacher_forcing_ratio: 1.25
-    batch_size: 64
-    epoch: 40
+    batch_size: 32
+    epoch: 5
     early_stop_threshold: 2
-    print_every: 5
+    print_every: 50
     checkpoint_every: 2
 
 save_dir: './Experiments'

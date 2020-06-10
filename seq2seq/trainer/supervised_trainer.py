@@ -116,7 +116,6 @@ class SupervisedTrainer(object):
                 target_variables = getattr(batch, seq2seq.tgt_field_name)
                 loss = self._train_batch(input_variables, input_lengths.tolist(), target_variables, model,
                                          teacher_forcing_ratio)
-
                 # Record average loss
                 print_loss_total += loss
                 epoch_loss_total += loss
