@@ -1,6 +1,7 @@
 {% load static %}
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
         <link rel="stylesheet" href="{% static 'css/form.css' %}">
         <meta charset="UTF-8">
@@ -12,11 +13,10 @@
       <form class="form" id="paper" action="/form/submit" method="post">
           {% csrf_token %}
 
-          <div id="margin">Title: <input id="title" type="text" name="title"></div>
-          <textarea placeholder="Enter something funny." id="input_text" name="text" rows="4" style="overflow: hidden; word-wrap: break-word; resize: none; height: 160px; "></textarea>
-          <textarea placeholder="Enter something funny." id="output_text" name="text" rows="4" style="overflow: hidden; word-wrap: break-word; resize: none; height: 160px; "></textarea>
+          <textarea placeholder="Buraya yazın..." id="input_text" name="text" rows="10" cols="50" style="overflow: hidden; word-wrap: break-word; resize: none; height: 160px; "></textarea>
+          <textarea placeholder="" id="output_text" name="text" rows="10" cols="50" style="overflow: hidden; word-wrap: break-word; resize: none; height: 160px; "></textarea>
         <br>
-          <input id="button" type="submit" value="Submit">
+          <input id="button" type="submit" value="Düzenle">
 
       </form>
 
