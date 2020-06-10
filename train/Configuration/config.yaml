@@ -41,7 +41,7 @@ model:
     variable_lengths: True
 
 train:
-    lr: 0.01
+    lr: 0.001
     teacher_forcing_ratio: 1.25
     batch_size: 32
     epoch: 5

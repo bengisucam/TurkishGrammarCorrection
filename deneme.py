@@ -43,7 +43,7 @@ class BiLSTM(nn.Module):
         tokens = self.tokenize(w)
         return torch.tensor([self.chars.vocab.stoi[i] for i in tokens])
 
-    def encode(self, batches, lengths):
+    def encode(self, batches):
         w = torch.empty((len(batches), batches.size(1), self.hidden_size * 2), dtype=torch.float)
         for i in range(len(batches)):
             # for each sentence
@@ -53,8 +53,8 @@ class BiLSTM(nn.Module):
             w[i] = embeds
         return w.cuda()
 
-    def __call__(self, input_variables, input_lengths):
-        return self.encode(input_variables, input_lengths)
+    def __call__(self, input_variables):
+        return self.encode(input_variables)
 
     def _sentencetensor2charIndices(self, sentence):
         max_char_size = 20
