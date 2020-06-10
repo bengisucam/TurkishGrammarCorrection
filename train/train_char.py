@@ -63,15 +63,15 @@ loss = NLLLoss(weight, pad)
 if device == 'cuda' and torch.cuda.is_available():
     loss.cuda()
 print('- creating encoder-decoder')
+bidirectional = bool(config['model']['bidirectional'])
 
 hidden_size = config['model']['hidden_size']
-bilstm_hidden_size = hidden_size
-bilstm_embed_size = 128
+bilstm_hidden_size = int(hidden_size / 2)
+bilstm_embed_size = hidden_size
 bilstm_layers = 2
 
 bilstm = BiLSTM(bilstm_hidden_size, bilstm_embed_size, bilstm_layers, chars, src)
-bidirectional = bool(config['model']['bidirectional'])
-encoder = EncoderRNN(len(src.vocab), max_length, hidden_size * 2,
+encoder = EncoderRNN(len(src.vocab), max_length, hidden_size,
                      n_layers=int(config['model']['n_layers']),
                      rnn_cell=config['model']['rnn_cell'],
                      bidirectional=bidirectional,
@@ -79,7 +79,7 @@ encoder = EncoderRNN(len(src.vocab), max_length, hidden_size * 2,
                      input_dropout_p=float(config['model']['dropout_input']),
                      variable_lengths=config['model']['variable_lengths'],
                      )
-decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2,
+decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectional else hidden_size , bilstm_embed_size,
                      n_layers=int(config['model']['n_layers']),
                      rnn_cell=str(config['model']['rnn_cell']),
                      dropout_p=float(config['model']['dropout_output']),

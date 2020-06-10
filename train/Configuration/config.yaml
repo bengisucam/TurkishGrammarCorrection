@@ -3,21 +3,21 @@
 
 dataset:
     path: '../data/train/'
-    train: 'train100k.csv'
+    train: 'test.csv'
     dev: 'dev.csv'
     test: 'test.csv'
 
     embeddings:
-        use: True
+        use: False
         update: True
 
 
-    max_length: 10000
+    max_length: 16
     max_vocab: 200000
 
 model:
-    hidden_size: 64
-    bidirectional: False
+    hidden_size: 256
+    bidirectional: True
 
     device: 'cuda'
     # 'lstm' or 'gru'
@@ -44,7 +44,7 @@ train:
     lr: 0.001
     teacher_forcing_ratio: 1.25
     batch_size: 32
-    epoch: 5
+    epoch: 40
     early_stop_threshold: 2
     print_every: 50
     checkpoint_every: 2
