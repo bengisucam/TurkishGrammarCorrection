@@ -25,18 +25,12 @@ class BiLSTM(nn.Module):
         return self.chars.tokenize(sentence)
 
     def forward(self, input):
-        """
-        input is batch_size X char_size
-        embedded will be batch_size X seq_len X embed_size
-        :param input_lengths:
-        :return:
-        """
+
         char_embeds = self.char_embedding(input)
         output, _ = self.rnn(char_embeds)
-        index = torch.tensor([1]).cuda()
-        output = torch.index_select(output, 1, index)
 
-        return output.squeeze()
+        output = output[:, output.size(1)-1]
+        return output
 
     def _word2charIndices(self, word):
         w = self.src.vocab.itos[word]
