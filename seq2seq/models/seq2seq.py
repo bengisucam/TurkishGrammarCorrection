@@ -47,12 +47,22 @@ class Seq2seq(nn.Module):
 
     def forward(self, input_variable, input_lengths=None, target_variable=None,
                 teacher_forcing_ratio=1):
-        char_word_embeds = self.bilstm(input_variable, input_lengths)
-        encoder_outputs, encoder_hidden = self.encoder(input_variable, input_lengths,char_word_embeds)
+        char_word_embeds_source = self.bilstm(input_variable, input_lengths)
+        char_word_embeds_target = self.bilstm(target_variable, input_lengths)
+
+
+        if char_word_embeds_target.size(1) != target_variable.size(1):
+            print(f' Input: {input_variable.size()}')
+            print(f' Source embeds: {char_word_embeds_source.size()}')
+
+            print(f' Target: {target_variable.size()}')
+            print(f' Target embeds: {char_word_embeds_target.size()}')
+            exit()
+        encoder_outputs, encoder_hidden = self.encoder(input_variable, input_lengths,char_word_embeds_source)
         result = self.decoder(inputs=target_variable,
                               encoder_hidden=encoder_hidden,
                               encoder_outputs=encoder_outputs,
                               function=self.decode_function,
                               teacher_forcing_ratio=teacher_forcing_ratio,
-                              embeddings=char_word_embeds)
+                              char_embeds=char_word_embeds_target)
         return result

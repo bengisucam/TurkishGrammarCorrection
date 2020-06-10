@@ -16,7 +16,7 @@ dataset:
     max_vocab: 200000
 
 model:
-    hidden_size: 128
+    hidden_size: 64
     bidirectional: False
 
     device: 'cuda'
@@ -41,7 +41,7 @@ model:
     variable_lengths: True
 
 train:
-    lr: 0.002
+    lr: 0.01
     teacher_forcing_ratio: 1.25
     batch_size: 32
     epoch: 5
