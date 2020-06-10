@@ -14,8 +14,11 @@ class BiLSTM(nn.Module):
         self.vocab = self.chars.vocab
         char_size = len(self.chars.vocab)
 
-        self.hidden_size=hidden_size
+        self.hidden_size = hidden_size
         self.char_embedding = nn.Embedding(char_size, embed_size)
+        torch.nn.init.xavier_uniform_(self.char_embedding.weight)
+
+
         self.char_embedding.weight.requires_grad = True
 
         self.rnn = nn.LSTM(embed_size, hidden_size, bidirectional=True, batch_first=True, dropout=lstm_dropout,
@@ -29,7 +32,7 @@ class BiLSTM(nn.Module):
         char_embeds = self.char_embedding(input)
         output, _ = self.rnn(char_embeds)
 
-        output = output[:, output.size(1)-1]
+        output = output[:, output.size(1) - 1]
         return output
 
     def _word2charIndices(self, word):
@@ -56,7 +59,8 @@ class BiLSTM(nn.Module):
         index = 0
         for wordIndex in sentence:
             chars = self._word2charIndices(wordIndex)
-            result = F.pad(input=chars, pad=(0, max_char_size - len(chars)), mode='constant', value=self.chars.vocab.stoi[self.chars.pad_token])
+            result = F.pad(input=chars, pad=(0, max_char_size - len(chars)), mode='constant',
+                           value=self.chars.vocab.stoi[self.chars.pad_token])
             w[index] = result
             index += 1
         return w.cuda()
