@@ -79,27 +79,30 @@ class DecoderRNN(BaseRNN):
 
         self.init_input = None
 
+        self.embedding = nn.Embedding(self.output_size, self.hidden_size)
         if use_attention:
             self.attention = Attention(self.hidden_size)
 
         self.out = nn.Linear(self.hidden_size, self.output_size)
 
-    def forward_step(self, input_var, hidden, encoder_outputs, function,embeddings):
-        batch_size = embeddings.size(0)
-        output_size = embeddings.size(1)
-        embedded = self.input_dropout(embeddings)
+
+    def forward_step(self, input_var, hidden, encoder_outputs, function,char_embeds):
+        batch_size = char_embeds.size(0)
+        output_size = char_embeds.size(1)
+        embedded_old = self.embedding(input_var)
+        embedded = self.input_dropout(char_embeds)
         output, hidden = self.rnn(embedded, hidden)
+
         attn = None
         if self.use_attention:
             output, attn = self.attention(output, encoder_outputs)
-        outs=self.out(output.contiguous().view(-1, self.hidden_size))
-        predicted_softmax = function(outs, dim=1)
-        predicted_softmax=predicted_softmax.view(batch_size,
-                                                        output_size,
-                                                         -1)
+
+        predicted_softmax = function(self.out(output.contiguous().view(-1, self.hidden_size)), dim=1).view(batch_size,
+                                                                                                           output_size,
+                                                                                                           -1)
         return predicted_softmax, hidden, attn
 
-    def forward(self, inputs=None, encoder_hidden=None, encoder_outputs=None,embeddings=None,
+    def forward(self, inputs=None, encoder_hidden=None, encoder_outputs=None,char_embeds=None,
                 function=F.log_softmax, teacher_forcing_ratio=1):
         ret_dict = dict()
         if self.use_attention:
@@ -134,7 +137,7 @@ class DecoderRNN(BaseRNN):
         if use_teacher_forcing:
             decoder_input = inputs[:, :-1]
             decoder_output, decoder_hidden, attn = self.forward_step(decoder_input, decoder_hidden, encoder_outputs,
-                                                                     function=function,embeddings=embeddings)
+                                                                     function=function, char_embeds=char_embeds)
 
             for di in range(decoder_output.size(1)):
                 step_output = decoder_output[:, di, :]

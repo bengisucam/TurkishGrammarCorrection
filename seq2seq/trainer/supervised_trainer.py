@@ -57,11 +57,23 @@ class SupervisedTrainer(object):
         # Forward propagation
         decoder_outputs, decoder_hidden, other = model(input_variable, input_lengths, target_variable,
                                                        teacher_forcing_ratio=teacher_forcing_ratio)
+
         # Get loss
         loss.reset()
         for step, step_output in enumerate(decoder_outputs):
             batch_size = target_variable.size(0)
-            loss.eval_batch(step_output.contiguous().view(batch_size, -1), target_variable[:, step + 1])
+            step_o=step_output.contiguous().view(batch_size, -1)
+
+            try:
+                loss.eval_batch(step_o, target_variable[:, step + 1])
+            except IndexError as ie:
+                # print(f'Decouder outputs size: {len(decoder_outputs)}')
+                # print(step_o.size())
+                # print(batch_size)
+                # print(step)
+                # print(target_variable.size())
+                # exit()
+                pass
         # Backward propagation
         model.zero_grad()
         loss.backward()

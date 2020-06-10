@@ -17,12 +17,13 @@ from train.train_seq import parse_yaml
 
 def tokenize(sentence):
     return list(" ".join(sentence.split()))
+
+
 logging.basicConfig(level=logging.INFO)
 
 config = parse_yaml('Configuration/config.yaml')
 
 max_length = config['dataset']['max_length']
-hidden_size = config['model']['hidden_size']
 
 src = SourceField()
 tgt = TargetField()
@@ -37,15 +38,12 @@ train, dev, test = torchtext.data.TabularDataset.splits(
 ___, __, _ = torchtext.data.TabularDataset.splits(
     path=config['dataset']['path'], train=config['dataset']['train'],
     validation=config['dataset']['dev'], test=config['dataset']['test'], format='csv', skip_header=True,
-    fields=[('id', None), ("src", chars),('tgt', None)])
-
+    fields=[('id', None), ("src", chars), ('tgt', None)])
 
 max_vocab_size = int(config['dataset']['max_vocab'])
 src.build_vocab(train, max_size=max_vocab_size)
 tgt.build_vocab(train, max_size=max_vocab_size)
 chars.build_vocab(___, max_size=max_vocab_size)
-
-
 print('- src vocab size: {}'.format(len(src.vocab)))
 print('- tgt vocab size: {}'.format(len(tgt.vocab)))
 print('- chars vocab size: {}'.format(len(chars.vocab)))
@@ -66,16 +64,22 @@ if device == 'cuda' and torch.cuda.is_available():
     loss.cuda()
 print('- creating encoder-decoder')
 
+hidden_size = config['model']['hidden_size']
+bilstm_hidden_size = hidden_size
+bilstm_embed_size = 128
+bilstm_layers = 2
+
+bilstm = BiLSTM(bilstm_hidden_size, bilstm_embed_size, bilstm_layers, chars, src)
 bidirectional = bool(config['model']['bidirectional'])
-encoder = EncoderRNN(len(src.vocab), max_length, hidden_size,
+encoder = EncoderRNN(len(src.vocab), max_length, hidden_size * 2,
                      n_layers=int(config['model']['n_layers']),
                      rnn_cell=config['model']['rnn_cell'],
                      bidirectional=bidirectional,
                      dropout_p=float(config['model']['dropout_output']),
                      input_dropout_p=float(config['model']['dropout_input']),
                      variable_lengths=config['model']['variable_lengths'],
-                    )
-decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectional else hidden_size,
+                     )
+decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2,
                      n_layers=int(config['model']['n_layers']),
                      rnn_cell=str(config['model']['rnn_cell']),
                      dropout_p=float(config['model']['dropout_output']),
@@ -84,11 +88,6 @@ decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectiona
                      bidirectional=bidirectional,
                      eos_id=tgt.eos_id, sos_id=tgt.sos_id)
 
-bilstm_hidden_size=64
-bilstm_embed_size=64
-bilstm_layers=2
-
-bilstm = BiLSTM(bilstm_hidden_size,bilstm_embed_size, bilstm_layers, chars,src)
 seq2seq = Seq2seq(bilstm, encoder, decoder)
 
 if device == 'cuda':
@@ -104,7 +103,6 @@ if config['model']['scheduler']['enabled']:
 print('- starting training')
 print(f'- device {device}\n')
 
-
 t = SupervisedTrainer(loss=loss, batch_size=int(config['train']['batch_size']),
                       print_every=int(config['train']['print_every']),
                       early_stop_threshold=int(config['train']['early_stop_threshold']),
@@ -115,11 +113,6 @@ seq2seq = t.train(seq2seq, train, dev_data=dev, test_data=test,
                   num_epochs=config['train']['epoch'],
                   optimizer=optimizer,
                   teacher_forcing_ratio=config['train']['teacher_forcing_ratio'], deviceName=device)
-
-
-
-
-
 
 logging.shutdown()
 if device == 'cuda':

@@ -14,6 +14,7 @@ class BiLSTM(nn.Module):
         self.vocab = self.chars.vocab
         char_size = len(self.chars.vocab)
 
+        self.hidden_size=hidden_size
         self.char_embedding = nn.Embedding(char_size, embed_size)
         self.char_embedding.weight.requires_grad = True
 
@@ -43,8 +44,7 @@ class BiLSTM(nn.Module):
         return torch.tensor([self.chars.vocab.stoi[i] for i in tokens])
 
     def encode(self, batches, lengths):
-
-        w = torch.empty((len(batches), lengths[0], 128), dtype=torch.float)
+        w = torch.empty((len(batches), batches.size(1), self.hidden_size * 2), dtype=torch.float)
         for i in range(len(batches)):
             # for each sentence
             sentence_tensor = batches[i]
@@ -62,7 +62,7 @@ class BiLSTM(nn.Module):
         index = 0
         for wordIndex in sentence:
             chars = self._word2charIndices(wordIndex)
-            result = F.pad(input=chars, pad=(0, max_char_size - len(chars)), mode='constant', value=1)
+            result = F.pad(input=chars, pad=(0, max_char_size - len(chars)), mode='constant', value=self.chars.vocab.stoi[self.chars.pad_token])
             w[index] = result
             index += 1
         return w.cuda()
