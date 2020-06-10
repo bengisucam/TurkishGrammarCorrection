@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 
 class BiLSTM(nn.Module):
-    def __init__(self, hidden_size, embed_size, layers, chars, src, lstm_dropout=0.0):
+    def __init__(self, hidden_size, embed_size, layers, chars, src, lstm_dropout=0.2):
         super(BiLSTM, self).__init__()
 
         self.chars = chars
