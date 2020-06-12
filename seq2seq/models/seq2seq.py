@@ -34,12 +34,11 @@ class Seq2seq(nn.Module):
 
     """
 
-    def __init__(self, bilstm, encoder, decoder, decode_function=F.log_softmax):
+    def __init__(self, encoder, decoder, decode_function=F.log_softmax):
         super(Seq2seq, self).__init__()
         self.encoder = encoder
         self.decoder = decoder
         self.decode_function = decode_function
-        self.bilstm = bilstm
 
     def flatten_parameters(self):
         self.encoder.rnn.flatten_parameters()
@@ -47,8 +46,7 @@ class Seq2seq(nn.Module):
 
     def forward(self, input_variable, input_lengths=None, target_variable=None,
                 teacher_forcing_ratio=1):
-        char_word_embeds_source = self.bilstm(input_variable)
-        encoder_outputs, encoder_hidden = self.encoder(input_variable, input_lengths,char_word_embeds_source)
+        encoder_outputs, encoder_hidden = self.encoder(input_variable, input_lengths)
         result = self.decoder(inputs=target_variable,
                               encoder_hidden=encoder_hidden,
                               encoder_outputs=encoder_outputs,
