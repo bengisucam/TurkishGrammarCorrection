@@ -16,7 +16,7 @@ class BiLSTM(nn.Module):
 
         self.hidden_size = hidden_size
         self.char_embedding = nn.Embedding(char_size, embed_size)
-        # torch.nn.init.xavier_uniform_(self.char_embedding.weight)
+        torch.nn.init.xavier_uniform_(self.char_embedding.weight)
 
         self.char_embedding.weight.requires_grad = True
 
