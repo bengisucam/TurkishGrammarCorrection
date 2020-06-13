@@ -16,8 +16,8 @@ dataset:
     max_vocab: 200000
 
 model:
-    char_embedding_size: 256
-    bilstm_out_size: 256
+    char_embedding_size: 512
+    bilstm_out_size: 512
     word_embedding_size: 300
 
     encoder_lstm_out_decoder_in: 512
