@@ -5,6 +5,11 @@ import torchtext
 from torch.optim.lr_scheduler import StepLR
 from torchtext.vocab import FastText
 
+
+import sys
+sys.path.append("/content/drive/My Drive/GrammarCorr/TurkishGrammarCorrection/")
+
+
 from seq2seq.models.bilstm import BiLSTM
 from seq2seq.dataset import SourceField, TargetField
 from seq2seq.loss import NLLLoss
@@ -12,7 +17,6 @@ from seq2seq.models import EncoderRNN, DecoderRNN, Seq2seq
 from seq2seq.optim import Optimizer
 from seq2seq.trainer import SupervisedTrainer
 from train.train_seq import parse_yaml
-
 
 def tokenize(sentence):
     return list(" ".join(sentence.split()))
