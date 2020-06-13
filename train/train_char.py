@@ -96,7 +96,9 @@ decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectiona
                      use_attention=bool(config['model']['use_attention']),
                      bidirectional=bidirectional,
                      eos_id=tgt.eos_id, sos_id=tgt.sos_id,
-                     embedder=bilstm)
+                     embedder=bilstm,
+                     weights=tgt.vocab.vectors,
+                     update_embedding=bool(config['dataset']['word_embeddings']['update']))
 
 seq2seq = Seq2seq(bilstm, encoder, decoder)
 
