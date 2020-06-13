@@ -20,7 +20,7 @@ model:
     bilstm_out_size: 256
     word_embedding_size: 300
 
-    encoder_lstm_out_decoder_in: 256
+    encoder_lstm_out_decoder_in: 512
     bidirectional: True
 
     device: 'cuda'
