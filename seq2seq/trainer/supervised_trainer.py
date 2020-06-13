@@ -146,7 +146,7 @@ class SupervisedTrainer(object):
             epoch_loss_total = 0
             log_msg = "- finished epoch %d: with train %s: %.4f" % (epoch, self.loss.name, epoch_loss_avg)
             if dev_data is not None:
-                dev_loss, accuracy = self.evaluator.evaluate(model, dev_data, device)
+                dev_loss, accuracy = self.evaluator.evaluate(model,bilstm, dev_data, device)
                 epoch_dev_loss = dev_loss
                 self.optimizer.update(dev_loss, epoch)
                 log_msg += ", Dev %s: %.4f, Accuracy: %.4f" % (self.loss.name, dev_loss, accuracy)
@@ -171,7 +171,7 @@ class SupervisedTrainer(object):
                    output_vocab=data.fields[seq2seq.tgt_field_name].vocab).save(self.expt_dir,
                                                                                 f'{self.save_name}\\{epoch}')
         if test_data is not None:
-            test_loss, test_acc = self.evaluator.evaluate(model, test_data, torch.device(deviceName))
+            test_loss, test_acc = self.evaluator.evaluate(model,bilstm, test_data, torch.device(deviceName))
             logging.info(f'Test Loss: {test_loss}, Test Accuracy: {test_acc}')
         return path
 
@@ -214,6 +214,6 @@ class SupervisedTrainer(object):
                             teacher_forcing_ratio=teacher_forcing_ratio, deviceName=deviceName)
         path=self._save_final(model, bilstm,num_epochs, step, data)
         if test_data is not None:
-            test_loss, test_acc = self.evaluator.evaluate(model, test_data, torch.device(deviceName))
+            test_loss, test_acc = self.evaluator.evaluate(model,bilstm, test_data, torch.device(deviceName))
             logging.info(f'Test Loss: {test_loss}, Test Accuracy: {test_acc}')
         return model,path
