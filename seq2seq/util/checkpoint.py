@@ -34,11 +34,13 @@ class Checkpoint(object):
 
     TRAINER_STATE_NAME = 'trainer_states.pt'
     MODEL_NAME = 'model.pt'
+    BILSTM_NAME='bilstm.pt'
     INPUT_VOCAB_FILE = 'input_vocab.pt'
     OUTPUT_VOCAB_FILE = 'output_vocab.pt'
 
-    def __init__(self, model, optimizer, epoch, step, input_vocab, output_vocab, path=None):
+    def __init__(self, model, bilstm, optimizer, epoch, step, input_vocab, output_vocab, path=None):
         self.model = model
+        self.bilstm=bilstm
         self.optimizer = optimizer
         self.input_vocab = input_vocab
         self.output_vocab = output_vocab
@@ -75,6 +77,7 @@ class Checkpoint(object):
                    },
                    os.path.join(path, self.TRAINER_STATE_NAME))
         torch.save(self.model, os.path.join(path, self.MODEL_NAME))
+        torch.save(self.bilstm, os.path.join(path, self.BILSTM_NAME))
 
         with open(os.path.join(path, self.INPUT_VOCAB_FILE), 'wb') as fout:
             dill.dump(self.input_vocab, fout)
