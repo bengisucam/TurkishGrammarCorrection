@@ -94,8 +94,10 @@ class DecoderRNN(BaseRNN):
 
         batch_size = input_var.size(0)
         output_size = input_var.size(1)
+
         char_embeds=self.char_embedding(input_var)
         word_embeds = self.word_embedding(input_var)
+
         embeddings = torch.cat([char_embeds, word_embeds], dim=2)
         embeddings = self.input_dropout(embeddings)
         output, hidden = self.rnn(embeddings, hidden)
@@ -144,7 +146,8 @@ class DecoderRNN(BaseRNN):
         if use_teacher_forcing:
             decoder_input = inputs[:, :-1]
             decoder_output, decoder_hidden, attn = self.forward_step(decoder_input, decoder_hidden, encoder_outputs,
-                                                                     function=function)
+                                                                     function=function,
+                                                                     )
 
             for di in range(decoder_output.size(1)):
                 step_output = decoder_output[:, di, :]
@@ -158,7 +161,8 @@ class DecoderRNN(BaseRNN):
             for di in range(max_length):
                 decoder_output, decoder_hidden, step_attn = self.forward_step(decoder_input, decoder_hidden,
                                                                               encoder_outputs,
-                                                                              function=function)
+                                                                              function=function,
+                                                                             )
                 step_output = decoder_output.squeeze(1)
                 symbols = decode(di, step_output, step_attn)
                 decoder_input = symbols
@@ -207,7 +211,7 @@ class DecoderRNN(BaseRNN):
         if inputs is None:
             if teacher_forcing_ratio > 0:
                 raise ValueError("Teacher forcing has to be disabled (set 0) when no inputs is provided.")
-            inputs = torch.LongTensor([self.sos_id] * batch_size).view(batch_size, 1)
+            inputs = torch.LongTensor([self.sos_id] * batch_size).view(batch_size, 1).cuda()
             # if torch.cuda.is_available():
             #     inputs = inputs.cuda()
             max_length = self.max_length

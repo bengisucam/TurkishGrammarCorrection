@@ -4,7 +4,7 @@ from torch.autograd import Variable
 
 class Predictor(object):
 
-    def __init__(self, model, src_vocab, tgt_vocab, device='cpu'):
+    def __init__(self, model,bilstm, src_vocab, tgt_vocab, device='cuda'):
         """
         Predictor class to evaluate for a given model.
         Args:
@@ -14,11 +14,17 @@ class Predictor(object):
             tgt_vocab (seq2seq.dataset.vocabulary.Vocabulary): target sequence vocabulary
         """
         self.device=device
+        self.bilstm = bilstm
         if self.device=='cuda':
             self.model = model.cuda()
+            self.bilstm = bilstm.cuda()
         else:
             self.model = model.cpu()
+            self.bilstm = bilstm.cpu()
         self.model.eval()
+        self.bilstm.eval()
+
+
         self.src_vocab = src_vocab
         self.tgt_vocab = tgt_vocab
 
@@ -26,9 +32,15 @@ class Predictor(object):
         src_id_seq = torch.LongTensor([self.src_vocab.stoi[tok] for tok in src_seq]).view(1, -1)
         if self.device=='cuda':
             src_id_seq = src_id_seq.cuda()
+        else:
+            src_id_seq = src_id_seq.cpu()
 
+        char_word_embeds_source = self.bilstm(src_id_seq)
         with torch.no_grad():
-            softmax_list, _, other = self.model(src_id_seq, [len(src_seq)])
+            softmax_list, _, other = self.model(
+                src_id_seq, [len(src_seq)],
+                char_word_embeds=char_word_embeds_source,
+                teacher_forcing_ratio=0)
 
         return other
 

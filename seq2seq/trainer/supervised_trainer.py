@@ -40,6 +40,7 @@ class SupervisedTrainer(object):
         self.evaluator = Evaluator(loss=self.loss, batch_size=batch_size)
         self.optimizer = None
 
+
         self.print_every = print_every
         self.early_stop = early_stop_threshold
         self.checkpoint_every = checkpoint_every
@@ -52,11 +53,13 @@ class SupervisedTrainer(object):
             os.makedirs(os.path.join(self.expt_dir, save_name))
         self.batch_size = batch_size
 
-    def _train_batch(self, input_variable, input_lengths, target_variable, model, teacher_forcing_ratio):
+    def _train_batch(self, input_variable, input_lengths, target_variable, model,bilstm, teacher_forcing_ratio):
         loss = self.loss
         # Forward propagation
+        char_word_embeds_source = bilstm(input_variable)
         decoder_outputs, decoder_hidden, other = model(input_variable, input_lengths, target_variable,
-                                                       teacher_forcing_ratio=teacher_forcing_ratio)
+                                                       teacher_forcing_ratio=teacher_forcing_ratio,
+                                                       char_word_embeds=char_word_embeds_source)
 
         # Get loss
         loss.reset()
@@ -72,7 +75,7 @@ class SupervisedTrainer(object):
 
         return loss.get_loss()
 
-    def _train_epoches(self, data, model, n_epochs, start_epoch, start_step,
+    def _train_epoches(self, data, model,bilstm, n_epochs, start_epoch, start_step,
                        dev_data=None, test_data=None, teacher_forcing_ratio=0, deviceName='cuda'):
 
         print_loss_total = 0  # Reset every print_every
@@ -112,12 +115,13 @@ class SupervisedTrainer(object):
                 next(batch_generator)
 
             model.train(True)
+            bilstm.train(True)
             for batch in batch_generator:
                 step += 1
                 step_elapsed += 1
                 input_variables, input_lengths = getattr(batch, seq2seq.src_field_name)
                 target_variables = getattr(batch, seq2seq.tgt_field_name)
-                loss = self._train_batch(input_variables, input_lengths.tolist(), target_variables, model,
+                loss = self._train_batch(input_variables, input_lengths.tolist(), target_variables, model,bilstm,
                                          teacher_forcing_ratio)
                 # Record average loss
                 print_loss_total += loss
@@ -147,34 +151,41 @@ class SupervisedTrainer(object):
                 self.optimizer.update(dev_loss, epoch)
                 log_msg += ", Dev %s: %.4f, Accuracy: %.4f" % (self.loss.name, dev_loss, accuracy)
                 model.train(mode=True)
+                bilstm.train(True)
+
             else:
                 self.optimizer.update(epoch_loss_avg, epoch)
             log_msg += f' in {dt.timedelta(seconds=time.time() - epoch_time)}'
             logging.info(log_msg)
 
             if epoch % self.checkpoint_every == 0 or step == total_steps:
-                self._save(model, epoch, step, data, test_data=test_data, deviceName=deviceName)
+                self._save(model,bilstm, epoch, step, data, test_data=test_data, deviceName=deviceName)
         return model
 
-    def _save(self, model, epoch, step, data, test_data, deviceName):
-        Checkpoint(model=model,
+    def _save(self, model, bilstm, epoch, step, data, test_data, deviceName):
+        path=Checkpoint(model=model,
+                   bilstm=bilstm,
                    optimizer=self.optimizer,
                    epoch=epoch, step=step,
                    input_vocab=data.fields[seq2seq.src_field_name].vocab,
                    output_vocab=data.fields[seq2seq.tgt_field_name].vocab).save(self.expt_dir,
                                                                                 f'{self.save_name}\\{epoch}')
-        test_loss, test_acc = self.evaluator.evaluate(model, test_data, torch.device(deviceName))
-        logging.info(f'Test Loss: {test_loss}, Test Accuracy: {test_acc}')
+        if test_data is not None:
+            test_loss, test_acc = self.evaluator.evaluate(model, test_data, torch.device(deviceName))
+            logging.info(f'Test Loss: {test_loss}, Test Accuracy: {test_acc}')
+        return path
 
-    def _save_final(self, model, epoch, step, data):
-        Checkpoint(model=model,
+    def _save_final(self, model,bilstm, epoch, step, data):
+        path=Checkpoint(model=model,
+                   bilstm=bilstm,
                    optimizer=self.optimizer,
                    epoch=epoch, step=step,
                    input_vocab=data.fields[seq2seq.src_field_name].vocab,
                    output_vocab=data.fields[seq2seq.tgt_field_name].vocab).save(self.expt_dir,
                                                                                 f'{self.save_name}\\Final')
+        return path
 
-    def train(self, model, data, num_epochs=5, dev_data=None, test_data=None,
+    def train(self, model,bilstm, data, num_epochs=5, dev_data=None, test_data=None,
               optimizer=None, teacher_forcing_ratio=0, deviceName='cuda'):
         """ Run training for a given model.
         Args:
@@ -198,10 +209,11 @@ class SupervisedTrainer(object):
 
         # print("- optimizer: %s, scheduler: %s" % (self.optimizer.optimizer, self.optimizer.scheduler))
 
-        self._train_epoches(data, model, num_epochs,
+        self._train_epoches(data, model,bilstm, num_epochs,
                             start_epoch, step, dev_data=dev_data, test_data=test_data,
                             teacher_forcing_ratio=teacher_forcing_ratio, deviceName=deviceName)
-        self._save_final(model, num_epochs, step, data)
-        test_loss, test_acc = self.evaluator.evaluate(model, test_data, torch.device(deviceName))
-        logging.info(f'Test Loss: {test_loss}, Test Accuracy: {test_acc}')
-        return model
+        path=self._save_final(model, bilstm,num_epochs, step, data)
+        if test_data is not None:
+            test_loss, test_acc = self.evaluator.evaluate(model, test_data, torch.device(deviceName))
+            logging.info(f'Test Loss: {test_loss}, Test Accuracy: {test_acc}')
+        return model,path
