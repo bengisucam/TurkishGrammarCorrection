@@ -134,7 +134,7 @@ t = SupervisedTrainer(loss=loss,
 print(
     f'Allocated GPU Mem: {torch.cuda.memory_allocated(0)} - Cached Mem: {torch.cuda.memory_cached(0)} - Free Mem: {torch.cuda.get_device_properties(0).total_memory - torch.cuda.memory_allocated(0)}')
 
-seq2seq,path = t.train(seq2seq,bilstm, train, dev_data=None, test_data=None,
+seq2seq,path = t.train(seq2seq,bilstm, train, dev_data=dev, test_data=test,
                   num_epochs=config['train']['epoch'],
                   optimizer=optimizer,
                   teacher_forcing_ratio=config['train']['teacher_forcing_ratio'], deviceName=device)
