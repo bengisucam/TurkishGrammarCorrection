@@ -3,6 +3,7 @@ import logging
 import torch
 import torchtext
 from torch.optim.lr_scheduler import StepLR
+from torchtext.vocab import FastText
 
 from seq2seq.models.bilstm import BiLSTM
 from seq2seq.dataset import SourceField, TargetField
@@ -38,9 +39,12 @@ ___, __, _ = torchtext.data.TabularDataset.splits(
     validation=config['dataset']['dev'], test=config['dataset']['test'], format='csv', skip_header=True,
     fields=[('id', None), ("src", chars), ('tgt', None)])
 
+embeddings = None
+if bool(config['dataset']['word_embeddings']['use']):
+    embeddings = FastText(language='tr')
 max_vocab_size = int(config['dataset']['max_vocab'])
-src.build_vocab(train, max_size=max_vocab_size)
-tgt.build_vocab(train, max_size=max_vocab_size)
+src.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
+tgt.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
 chars.build_vocab(___, max_size=max_vocab_size)
 print('- src vocab size: {}'.format(len(src.vocab)))
 print('- tgt vocab size: {}'.format(len(tgt.vocab)))
@@ -63,21 +67,24 @@ if device == 'cuda' and torch.cuda.is_available():
 print('- creating encoder-decoder')
 bidirectional = bool(config['model']['bidirectional'])
 
-hidden_size = config['model']['hidden_size']
+hidden_size = config['model']['encoder_lstm_out_decoder_in']
 bilstm_hidden_size = int(hidden_size / 2)
-bilstm_embed_size = hidden_size
-bilstm_layers = 2
 
-bilstm = BiLSTM(bilstm_hidden_size, bilstm_embed_size, bilstm_layers, chars, src)
-encoder = EncoderRNN(len(src.vocab), max_length, hidden_size,
+bilstm = BiLSTM(bilstm_hidden_size, config['model']['char_embedding_size'], int(config['model']['n_layers']), chars, src)
+encoder = EncoderRNN(len(src.vocab),
+                     max_len=max_length,
+                     embedding_total_size=int(config['model']['char_embedding_size'])+ int(config['model']['word_embedding_size']),
+                     hidden_size=hidden_size,
                      n_layers=int(config['model']['n_layers']),
                      rnn_cell=config['model']['rnn_cell'],
                      bidirectional=bidirectional,
                      dropout_p=float(config['model']['dropout_output']),
                      input_dropout_p=float(config['model']['dropout_input']),
                      variable_lengths=config['model']['variable_lengths'],
-                     )
-decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectional else hidden_size , bilstm_embed_size,
+                     weights=src.vocab.vectors,
+                     update_embedding=bool(config['dataset']['word_embeddings']['update']))
+decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectional else hidden_size,
+                     embedding_total_size=int(config['model']['char_embedding_size'])+ int(config['model']['word_embedding_size']),
                      n_layers=int(config['model']['n_layers']),
                      rnn_cell=str(config['model']['rnn_cell']),
                      dropout_p=float(config['model']['dropout_output']),
@@ -88,7 +95,6 @@ decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectiona
                      embedder=bilstm)
 
 seq2seq = Seq2seq(bilstm, encoder, decoder)
-
 
 if device == 'cuda':
     seq2seq.cuda()
@@ -108,7 +114,8 @@ t = SupervisedTrainer(loss=loss, batch_size=int(config['train']['batch_size']),
                       early_stop_threshold=int(config['train']['early_stop_threshold']),
                       save_name="save_name",
                       checkpoint_every=int(config['train']['checkpoint_every']))
-print(f'Allocated GPU Mem: {torch.cuda.memory_allocated(0)} - Cached Mem: { torch.cuda.memory_cached(0)} - Free Mem: {torch.cuda.get_device_properties(0).total_memory -torch.cuda.memory_allocated(0)}')
+print(
+    f'Allocated GPU Mem: {torch.cuda.memory_allocated(0)} - Cached Mem: {torch.cuda.memory_cached(0)} - Free Mem: {torch.cuda.get_device_properties(0).total_memory - torch.cuda.memory_allocated(0)}')
 
 seq2seq = t.train(seq2seq, train, dev_data=dev, test_data=test,
                   num_epochs=config['train']['epoch'],

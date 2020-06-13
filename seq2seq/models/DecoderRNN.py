@@ -60,7 +60,7 @@ class DecoderRNN(BaseRNN):
     KEY_LENGTH = 'length'
     KEY_SEQUENCE = 'sequence'
 
-    def __init__(self, vocab_size, max_len, hidden_size, embedding_size,
+    def __init__(self, vocab_size, max_len, hidden_size, embedding_total_size,
                  sos_id, eos_id,
                  n_layers=1, rnn_cell='gru', bidirectional=False,
                  input_dropout_p=0, dropout_p=0, use_attention=False,embedder=None):
@@ -69,7 +69,7 @@ class DecoderRNN(BaseRNN):
                                          n_layers, rnn_cell)
 
         self.bidirectional_encoder = bidirectional
-        self.rnn = self.rnn_cell(embedding_size, hidden_size, n_layers, batch_first=True, dropout=dropout_p)
+        self.rnn = self.rnn_cell(embedding_total_size, hidden_size, n_layers, batch_first=True, dropout=dropout_p)
 
         self.output_size = vocab_size
         self.max_length = max_len
@@ -79,7 +79,8 @@ class DecoderRNN(BaseRNN):
 
         self.init_input = None
 
-        self.embedding=embedder
+        self.char_embedding=embedder
+        self.word_embedding = nn.Embedding(self.output_size, 300)
         if use_attention:
             self.attention = Attention(self.hidden_size)
 
@@ -90,9 +91,11 @@ class DecoderRNN(BaseRNN):
 
         batch_size = input_var.size(0)
         output_size = input_var.size(1)
-        char_embeds=self.embedding(input_var)
-        embedded = self.input_dropout(char_embeds)
-        output, hidden = self.rnn(embedded, hidden)
+        char_embeds=self.char_embedding(input_var)
+        word_embeds = self.word_embedding(input_var)
+        embeddings = torch.cat([char_embeds, word_embeds], dim=2)
+        embeddings = self.input_dropout(embeddings)
+        output, hidden = self.rnn(embeddings, hidden)
 
         attn = None
         if self.use_attention:
