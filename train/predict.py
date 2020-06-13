@@ -1,9 +1,8 @@
 import logging
-
+import sys
 import pandas as pd
-
+sys.path.append("/content/drive/My Drive/GrammarCorr/TurkishGrammarCorrection/")
 from seq2seq.evaluator import Predictor
-from seq2seq.util.checkpoint import Checkpoint
 
 
 def predict(seq2seq,bilstm, input_vocab, output_vocab, testcsv, savePath,max_len=20, n=250, device='cuda'):
