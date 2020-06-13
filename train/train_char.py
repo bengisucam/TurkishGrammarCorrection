@@ -9,10 +9,10 @@ from torchtext.vocab import FastText
 
 
 import sys
+sys.path.append("/content/drive/My Drive/GrammarCorr/TurkishGrammarCorrection/")
 
 from train.predict import predict
 
-sys.path.append("/content/drive/My Drive/GrammarCorr/TurkishGrammarCorrection/")
 
 
 from seq2seq.models.bilstm import BiLSTM
