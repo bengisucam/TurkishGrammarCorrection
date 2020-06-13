@@ -45,9 +45,9 @@ ___, __, _ = torchtext.data.TabularDataset.splits(
 
 embeddings = None
 if bool(config['dataset']['word_embeddings']['use']):
-    embeddings = FastText(language='tr')
+    embeddings = FastText(language='tr',cache='vectors')
 max_vocab_size = int(config['dataset']['max_vocab'])
-src.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
+src.build_vocab(train, max_size=max_vocab_size, vectors=embeddings,)
 tgt.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
 chars.build_vocab(___, max_size=max_vocab_size)
 print('- src vocab size: {}'.format(len(src.vocab)))
