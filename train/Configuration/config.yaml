@@ -7,8 +7,8 @@ dataset:
     dev: 'dev.csv'
     test: 'test.csv'
 
-    embeddings:
-        use: False
+    word_embeddings:
+        use: True
         update: True
 
 
@@ -16,7 +16,11 @@ dataset:
     max_vocab: 200000
 
 model:
-    hidden_size: 256
+    char_embedding_size: 256
+    bilstm_out_size: 256
+    word_embedding_size: 300
+
+    encoder_lstm_out_decoder_in: 256
     bidirectional: True
 
     device: 'cuda'

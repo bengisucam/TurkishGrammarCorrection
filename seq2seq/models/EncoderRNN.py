@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 from .baseRNN import BaseRNN
@@ -38,17 +39,22 @@ class EncoderRNN(BaseRNN):
 
     """
 
-    def __init__(self, vocab_size, max_len, hidden_size,
+    def __init__(self, vocab_size, max_len, embedding_total_size,hidden_size,
                  input_dropout_p=0, dropout_p=0,
-                 n_layers=1, bidirectional=False, rnn_cell='gru', variable_lengths=False):
+                 n_layers=1, bidirectional=False, rnn_cell='gru', variable_lengths=False,weights=None, update_embedding=True):
         super(EncoderRNN, self).__init__(vocab_size, max_len, hidden_size,
                                          input_dropout_p, dropout_p, n_layers, rnn_cell)
 
+        self.word_embedding = nn.Embedding(vocab_size, hidden_size)
+        if weights is not None:
+            self.word_embedding.weight = nn.Parameter(weights)
+        self.word_embedding.weight.requires_grad = update_embedding
+
         self.variable_lengths = variable_lengths
-        self.rnn = self.rnn_cell(hidden_size, hidden_size, n_layers,
+        self.rnn = self.rnn_cell(embedding_total_size , hidden_size, n_layers,
                                  batch_first=True, bidirectional=bidirectional, dropout=dropout_p)
 
-    def forward(self, input_var, input_lengths=None,embeddings=None):
+    def forward(self, input_var, input_lengths=None, char_embeddings=None):
         """
         Applies a multi-layer RNN to an input sequence.
 
@@ -60,12 +66,15 @@ class EncoderRNN(BaseRNN):
         Returns: output, hidden
             - **output** (batch, seq_len, hidden_size): variable containing the encoded features of the input sequence
             - **hidden** (num_layers * num_directions, batch, hidden_size): variable containing the features in the hidden state h
-            :param embeddings:
+            :param char_embeddings:
         """
-        embedded = self.input_dropout(embeddings)
+        word_embeds = self.word_embedding(input_var)
+        embeddings=torch.cat([char_embeddings,word_embeds],dim=2)
+        embeddings = self.input_dropout(embeddings)
+
         if self.variable_lengths:
-            embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths, batch_first=True)
-        output, hidden = self.rnn(embedded)
+            embeddings = nn.utils.rnn.pack_padded_sequence(embeddings, input_lengths, batch_first=True)
+        output, hidden = self.rnn(embeddings)
         if self.variable_lengths:
             output, _ = nn.utils.rnn.pad_packed_sequence(output, batch_first=True)
         return output, hidden
