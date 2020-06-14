@@ -2,10 +2,10 @@
 
 
 dataset:
-    path: '../data/new/'
-    train: 'train.csv'
-    dev: 'dev.csv'
-    test: 'test.csv'
+    path: '../data/train/'
+    train: 't.csv'
+    dev: 't.csv'
+    test: 't.csv'
 
     word_embeddings:
         use: True
