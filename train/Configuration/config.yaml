@@ -3,9 +3,9 @@
 
 dataset:
     path: '../data/train/'
-    train: 't.csv'
-    dev: 't.csv'
-    test: 't.csv'
+    train: 'train.csv'
+    dev: 'dev.csv'
+    test: 'test.csv'
 
     word_embeddings:
         use: True
@@ -38,7 +38,7 @@ model:
         rate: 1
 
     use_attention: True
-    n_layers: 1
+    n_layers: 2
     dropout_input: 0.2
     dropout_output: 0.2
 
@@ -47,10 +47,10 @@ model:
 train:
     lr: 0.0012
     teacher_forcing_ratio: 1.25
-    batch_size: 32
-    epoch: 40
+    batch_size: 16
+    epoch: 10
     early_stop_threshold: 2
     print_every: 250
-    checkpoint_every: 3
+    checkpoint_every: 2
 
 save_dir: './Experiments'
