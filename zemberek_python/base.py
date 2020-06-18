@@ -85,25 +85,26 @@ class ZemberekPython(object):
                     builtSentence = builtSentence.strip(" ")
                     newToken = newToken[1:]
                 builtSentence += newToken + ' '
-            if index > 0 and index % (int(len(lines) / 400)) == 0:
-                if print_ > 0:
-                    time_passed = int(time() - last_timing)
-                    estimated_time_left = (399 - print_) * time_passed
-                    estimated_time_left_hours = str(datetime.timedelta(seconds=estimated_time_left))
-                    logging.info('- %{} is done at {} -- estimated time left: {}'.format(float(print_ / 4),
-                                                                                         datetime.datetime.now(),
-                                                                                         estimated_time_left_hours)),
-                else:
-                    logging.info('- %{} is done at {}'.format(float(print_ / 4), datetime.datetime.now())),
-                last_timing = time()
-                print_ += 1
-            if builtSentence.strip() !=line.strip():
-                self.outSentences.append(builtSentence.strip())
-                self.outsource.append(f'{line.strip()}')
+
+            if index > 0:
+                if index % (int(len(lines)+1 / 400)) == 0:
+                    if print_ > 0:
+                        time_passed = int(time() - last_timing)
+                        estimated_time_left = (399 - print_) * time_passed
+                        estimated_time_left_hours = str(datetime.timedelta(seconds=estimated_time_left))
+                        logging.info('- %{} is done at {} -- estimated time left: {}'.format(float(print_ / 4),
+                                                                                             datetime.datetime.now(),
+                                                                                             estimated_time_left_hours)),
+                    else:
+                        logging.info('- %{} is done at {}'.format(float(print_ / 4), datetime.datetime.now())),
+                    last_timing = time()
+                    print_ += 1
+            self.outSentences.append(builtSentence.strip())
+            self.outsource.append(f'{line.strip()}')
 
         logging.info('- end time: {}'.format(datetime.datetime.now()))
-        with open('./data/xaa_target.txt','x',encoding='utf-8') as target:
-            target.write('\n'.join(self.outsource))
+        # with open('./data/xaa_target.txt','x',encoding='utf-8') as target:
+        #     target.write('\n'.join(self.outsource))
 
         return self
 
@@ -113,7 +114,8 @@ class ZemberekPython(object):
         analysis = self.AnalyzeWord(token)
         for rule in self.rules:
             if rule.Satisfies(token, analysis):
-                token = rule.Apply(token)
+                if random.random() < 0.92:
+                    token = rule.Apply(token)
         return token
 
     def startJVM(self):
