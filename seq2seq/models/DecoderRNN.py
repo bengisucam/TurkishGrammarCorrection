@@ -60,16 +60,16 @@ class DecoderRNN(BaseRNN):
     KEY_LENGTH = 'length'
     KEY_SEQUENCE = 'sequence'
 
-    def __init__(self, vocab_size, max_len, hidden_size,
+    def __init__(self, vocab_size, max_len, hidden_size, embedding_total_size,
                  sos_id, eos_id,
                  n_layers=1, rnn_cell='gru', bidirectional=False,
-                 input_dropout_p=0, dropout_p=0, use_attention=False):
+                 input_dropout_p=0, dropout_p=0, use_attention=False,embedder=None,weights=None,update_embedding=True):
         super(DecoderRNN, self).__init__(vocab_size, max_len, hidden_size,
                                          input_dropout_p, dropout_p,
                                          n_layers, rnn_cell)
 
         self.bidirectional_encoder = bidirectional
-        self.rnn = self.rnn_cell(hidden_size, hidden_size, n_layers, batch_first=True, dropout=dropout_p)
+        self.rnn = self.rnn_cell(embedding_total_size, hidden_size, n_layers, batch_first=True, dropout=dropout_p)
 
         self.output_size = vocab_size
         self.max_length = max_len
@@ -79,19 +79,28 @@ class DecoderRNN(BaseRNN):
 
         self.init_input = None
 
-        self.embedding = nn.Embedding(self.output_size, self.hidden_size)
+        self.char_embedding=embedder
+        self.word_embedding = nn.Embedding(self.output_size, 300)
+        if weights is not None:
+            self.word_embedding.weight = nn.Parameter(weights)
+        self.word_embedding.weight.requires_grad = update_embedding
         if use_attention:
             self.attention = Attention(self.hidden_size)
 
         self.out = nn.Linear(self.hidden_size, self.output_size)
 
+
     def forward_step(self, input_var, hidden, encoder_outputs, function):
+
         batch_size = input_var.size(0)
         output_size = input_var.size(1)
-        embedded = self.embedding(input_var)
-        embedded = self.input_dropout(embedded)
 
-        output, hidden = self.rnn(embedded, hidden)
+        char_embeds=self.char_embedding(input_var)
+        word_embeds = self.word_embedding(input_var)
+
+        embeddings = torch.cat([char_embeds, word_embeds], dim=2)
+        embeddings = self.input_dropout(embeddings)
+        output, hidden = self.rnn(embeddings, hidden)
 
         attn = None
         if self.use_attention:
@@ -137,7 +146,8 @@ class DecoderRNN(BaseRNN):
         if use_teacher_forcing:
             decoder_input = inputs[:, :-1]
             decoder_output, decoder_hidden, attn = self.forward_step(decoder_input, decoder_hidden, encoder_outputs,
-                                                                     function=function)
+                                                                     function=function,
+                                                                     )
 
             for di in range(decoder_output.size(1)):
                 step_output = decoder_output[:, di, :]
@@ -151,7 +161,8 @@ class DecoderRNN(BaseRNN):
             for di in range(max_length):
                 decoder_output, decoder_hidden, step_attn = self.forward_step(decoder_input, decoder_hidden,
                                                                               encoder_outputs,
-                                                                              function=function)
+                                                                              function=function,
+                                                                             )
                 step_output = decoder_output.squeeze(1)
                 symbols = decode(di, step_output, step_attn)
                 decoder_input = symbols
@@ -200,7 +211,7 @@ class DecoderRNN(BaseRNN):
         if inputs is None:
             if teacher_forcing_ratio > 0:
                 raise ValueError("Teacher forcing has to be disabled (set 0) when no inputs is provided.")
-            inputs = torch.LongTensor([self.sos_id] * batch_size).view(batch_size, 1)
+            inputs = torch.LongTensor([self.sos_id] * batch_size).view(batch_size, 1).cuda()
             # if torch.cuda.is_available():
             #     inputs = inputs.cuda()
             max_length = self.max_length

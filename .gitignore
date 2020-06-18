@@ -18,6 +18,8 @@ __pycache__/
 
 
 .vector_cache/
+vectors/
+Experiments/
 *.yml
 
 

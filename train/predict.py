@@ -1,13 +1,14 @@
+import logging
+import sys
 import pandas as pd
-
+sys.path.append("/content/drive/My Drive/GrammarCorr/TurkishGrammarCorrection/")
 from seq2seq.evaluator import Predictor
-from seq2seq.util.checkpoint import Checkpoint
 
 
-def predict(seq2seq, input_vocab, output_vocab, testcsv, savePath,max_len=20, n=250, device='cpu'):
+def predict(seq2seq,bilstm, input_vocab, output_vocab, testcsv, savePath,max_len=20, n=250, device='cuda'):
     frame = pd.read_csv(testcsv)
     frame = frame.sample(n, replace=True)
-    predictor = Predictor(seq2seq, input_vocab, output_vocab, device=device)
+    predictor = Predictor(seq2seq,bilstm, input_vocab, output_vocab, device=device)
     predictions = ""
     for sample in frame.values:
         source = sample[1]
@@ -22,7 +23,7 @@ def predict(seq2seq, input_vocab, output_vocab, testcsv, savePath,max_len=20, n=
 
     with open(savePath + "/predictions.txt", mode='x', encoding='utf-8') as preds:
         preds.write(predictions)
-
+        logging.info("- saved predictions to {}".format(savePath + "/predictions.txt"))
 
 # checkpoint = Checkpoint.load(
 #     './Experiments/lstm_512_NLLL_Adam_0.001_15_bidir - True_attention - True_update_embd - True_variable - True_nlayers - 2_schRate - 5',

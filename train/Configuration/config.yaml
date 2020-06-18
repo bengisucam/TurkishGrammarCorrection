@@ -3,20 +3,24 @@
 
 dataset:
     path: '../data/train/'
-    train: 'test.csv'
+    train: 'train.csv'
     dev: 'dev.csv'
     test: 'test.csv'
 
-    embeddings:
+    word_embeddings:
         use: True
-        update: True
+        update: False
 
 
     max_length: 16
     max_vocab: 200000
 
 model:
-    hidden_size: 300
+    char_embedding_size: 512
+    bilstm_out_size: 512
+    word_embedding_size: 300
+
+    encoder_lstm_out_decoder_in: 512
     bidirectional: True
 
     device: 'cuda'
@@ -35,18 +39,18 @@ model:
 
     use_attention: True
     n_layers: 2
-    dropout_input: 0.2
-    dropout_output: 0.2
+    dropout_input: 0.1
+    dropout_output: 0.1
 
     variable_lengths: True
 
 train:
-    lr: 0.0006
+    lr: 0.0012
     teacher_forcing_ratio: 1.25
     batch_size: 32
-    epoch: 40
+    epoch: 10
     early_stop_threshold: 2
-    print_every: 200
-    checkpoint_every: 2
+    print_every: 250
+    checkpoint_every: 1
 
 save_dir: './Experiments'

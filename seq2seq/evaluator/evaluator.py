@@ -19,7 +19,7 @@ class Evaluator(object):
         self.loss = loss
         self.batch_size = batch_size
 
-    def evaluate(self, model, data, device):
+    def evaluate(self, model,bilstm, data, device):
         """ Evaluate a model on given dataset and return performance.
 
         Args:
@@ -30,6 +30,7 @@ class Evaluator(object):
             loss (float): loss of the given model on the given dataset
         """
         model.eval()
+        bilstm.eval()
 
         loss = self.loss
         loss.reset()
@@ -48,8 +49,10 @@ class Evaluator(object):
                 input_variables, input_lengths = getattr(batch, seq2seq.src_field_name)
                 target_variables = getattr(batch, seq2seq.tgt_field_name)
 
+                char_word_embeds_source = bilstm(input_variables)
                 decoder_outputs, decoder_hidden, other = model(input_variables, input_lengths.tolist(),
-                                                               target_variables)
+                                                               target_variables,
+                                                               char_word_embeds=char_word_embeds_source)
 
                 # Evaluation
                 seqlist = other['sequence']
