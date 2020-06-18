@@ -39,18 +39,18 @@ model:
 
     use_attention: True
     n_layers: 2
-    dropout_input: 0.2
-    dropout_output: 0.2
+    dropout_input: 0.1
+    dropout_output: 0.1
 
     variable_lengths: True
 
 train:
     lr: 0.0012
     teacher_forcing_ratio: 1.25
-    batch_size: 16
+    batch_size: 32
     epoch: 10
     early_stop_threshold: 2
     print_every: 250
-    checkpoint_every: 2
+    checkpoint_every: 1
 
 save_dir: './Experiments'
