@@ -6,7 +6,7 @@ from zemberek_python.rule import GrammarRule
 
 logging.basicConfig(level=logging.INFO)
 
-ZEMBEREK_PATH = './data/zemberek/zemberek-full.jar'
+ZEMBEREK_PATH = '../data/zemberek/zemberek-full.jar'
 zemberek = ZemberekPython(ZEMBEREK_PATH)
 zemberek = zemberek.startJVM().CreateTokenizer().CreateTurkishMorphology().CreateSpellChecker()
 
@@ -53,6 +53,6 @@ Rules = \
     ]
 zemberek.AddRules(Rules)
 
-zemberek = zemberek.open(path='data/target.txt').process(min_tok=2, max_tok=15).write('./data/source.txt', mode='x')
+zemberek = zemberek.open(path='../data/target.txt').process(min_tok=2, max_tok=15).write('./data/source.txt', mode='x')
 
 zemberek.endJVM()
