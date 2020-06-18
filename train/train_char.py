@@ -19,8 +19,13 @@ from seq2seq.loss import NLLLoss
 from seq2seq.models import EncoderRNN, DecoderRNN, Seq2seq
 from seq2seq.optim import Optimizer
 from seq2seq.trainer import SupervisedTrainer
-from train.train_seq import parse_yaml
 
+def parse_yaml(path):
+    with open(path, 'r') as stream:
+        try:
+            return yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
 
 def tokenize(sentence):
     return list(" ".join(sentence.split()))
