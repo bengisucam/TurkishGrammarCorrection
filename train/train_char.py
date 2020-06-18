@@ -4,6 +4,7 @@ import time
 
 import torch
 import torchtext
+import yaml
 from torch.optim.lr_scheduler import StepLR
 from torchtext.vocab import FastText
 
