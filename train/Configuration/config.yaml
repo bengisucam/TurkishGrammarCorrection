@@ -47,7 +47,7 @@ model:
 train:
     lr: 0.0012
     teacher_forcing_ratio: 1.25
-    batch_size: 32
+    batch_size: 64
     epoch: 10
     early_stop_threshold: 2
     print_every: 250
