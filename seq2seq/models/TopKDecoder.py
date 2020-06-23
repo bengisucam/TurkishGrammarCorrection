@@ -87,11 +87,14 @@ class TopKDecoder(torch.nn.Module):
         """
         Forward rnn for MAX_LENGTH steps.  Look at :func:`seq2seq.models.DecoderRNN.DecoderRNN.forward_rnn` for details.
         """
-
+        inputs = inputs.cpu()
+        encoder_outputs = encoder_outputs.cpu()
+        h, c = encoder_hidden
+        encoder_hidden = h.cpu(), c.cpu()
         inputs, batch_size, max_length = self.rnn._validate_args(inputs, encoder_hidden, encoder_outputs,
                                                                  function, teacher_forcing_ratio)
 
-        self.pos_index = Variable(torch.LongTensor(range(batch_size)) * self.k).view(-1, 1).cuda()
+        self.pos_index = Variable(torch.LongTensor(range(batch_size)) * self.k).view(-1, 1)
 
         # Inflate the initial hidden states to be of size: b*k x h
         encoder_hidden = self.rnn._init_state(encoder_hidden)
@@ -114,10 +117,10 @@ class TopKDecoder(torch.nn.Module):
         sequence_scores = torch.Tensor(batch_size * self.k, 1)
         sequence_scores.fill_(-float('Inf'))
         sequence_scores.index_fill_(0, torch.LongTensor([i * self.k for i in range(0, batch_size)]), 0.0)
-        sequence_scores = Variable(sequence_scores).cuda()
+        sequence_scores = Variable(sequence_scores)
 
         # Initialize the input vector
-        input_var = Variable(torch.transpose(torch.LongTensor([[self.SOS] * batch_size * self.k]), 0, 1)).cuda()
+        input_var = Variable(torch.transpose(torch.LongTensor([[self.SOS] * batch_size * self.k]), 0, 1))
 
         # Store decisions for backtracking
         stored_outputs = list()
@@ -127,24 +130,27 @@ class TopKDecoder(torch.nn.Module):
         stored_hidden = list()
 
         for _ in range(0, max_length):
+
             # Run the RNN one step forward
             log_softmax_output, hidden, _ = self.rnn.forward_step(input_var, hidden,
                                                                   inflated_encoder_outputs, function=function)
-
+            h,c=hidden
+            hidden=h.cpu(),c.cpu()
             # If doing local backprop (e.g. supervised training), retain the output layer
             if retain_output_probs:
                 stored_outputs.append(log_softmax_output)
 
             # To get the full sequence scores for the new candidates, add the local scores for t_i to the predecessor scores for t_(i-1)
             sequence_scores = _inflate(sequence_scores, self.V, 1)
-            sequence_scores += log_softmax_output.squeeze(1)
+            sequence_scores += log_softmax_output.squeeze(1).cpu()
             scores, candidates = sequence_scores.view(batch_size, -1).topk(self.k, dim=1)
 
             # Reshape input = (bk, 1) and sequence_scores = (bk, 1)
             input_var = (candidates % self.V).view(batch_size * self.k, 1)
             sequence_scores = scores.view(batch_size * self.k, 1)
+
             # Update fields for next timestep
-            predecessors = (candidates / self.V + self.pos_index.expand_as(candidates)).view(batch_size * self.k, 1)
+            predecessors = (torch.true_divide(candidates , self.V) + self.pos_index.expand_as(candidates)).view(batch_size * self.k, 1)
             if isinstance(hidden, tuple):
                 hidden = tuple([h.index_select(1, predecessors.squeeze()) for h in hidden])
             else:
