@@ -117,13 +117,12 @@ decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectiona
                      weights=tgt.vocab.vectors,
                      update_embedding=bool(config['dataset']['word_embeddings']['update']))
 
-topk_decoder=TopKDecoder(decoder,12)
+topk_decoder=TopKDecoder(decoder,6)
 
 seq2seq = Seq2seq(encoder, topk_decoder)
 
 if device == 'cuda':
     seq2seq.cuda()
-    topk_decoder.cuda()
 for param in seq2seq.parameters():
     param.data.uniform_(-0.08, 0.08)
 for param in bilstm.parameters():
