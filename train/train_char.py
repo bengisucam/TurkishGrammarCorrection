@@ -10,7 +10,7 @@ from torchtext.vocab import FastText
 
 import sys
 
-sys.path.append("/content/drive/My Drive/GrammarCorr/TurkishGrammarCorrection/")
+sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
 
 from train.predict import predict
 
