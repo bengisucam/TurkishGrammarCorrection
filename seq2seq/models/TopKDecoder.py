@@ -134,9 +134,8 @@ class TopKDecoder(torch.nn.Module):
             # Run the RNN one step forward
             log_softmax_output, hidden, _ = self.rnn.forward_step(input_var, hidden,
                                                                   inflated_encoder_outputs, function=function)
-            h, c = hidden
-            hidden = h.cpu(), c.cpu()
-            log_softmax_output = log_softmax_output.cpu()
+            h,c=hidden
+            hidden=h.cpu(),c.cpu()
             # If doing local backprop (e.g. supervised training), retain the output layer
             if retain_output_probs:
                 stored_outputs.append(log_softmax_output)
@@ -151,8 +150,7 @@ class TopKDecoder(torch.nn.Module):
             sequence_scores = scores.view(batch_size * self.k, 1)
 
             # Update fields for next timestep
-            predecessors = (torch.floor_divide(candidates, self.V) + self.pos_index.expand_as(candidates)).view(
-                batch_size * self.k, 1)
+            predecessors = (torch.floor_divide(candidates , self.V) + self.pos_index.expand_as(candidates)).view(batch_size * self.k, 1)
             if isinstance(hidden, tuple):
                 hidden = tuple([h.index_select(1, predecessors.squeeze()) for h in hidden])
             else:
@@ -246,7 +244,7 @@ class TopKDecoder(torch.nn.Module):
         batch_eos_found = [0] * b  # the number of EOS found
         # in the backward loop below for each batch
 
-        t = len(nw_output) - 1
+        t = self.rnn.max_length - 1
         # initialize the back pointer with the sorted order of the last step beams.
         # add self.pos_index for indexing variable with b*k as the first dimension.
         t_predecessors = (sorted_idx + self.pos_index.expand_as(sorted_idx)).view(b * self.k)
@@ -336,6 +334,7 @@ class TopKDecoder(torch.nn.Module):
             h_t = [step.index_select(1, re_sorted_idx).view(-1, b, self.k, hidden_size) for step in reversed(h_t)]
             h_n = h_n.index_select(1, re_sorted_idx.data).view(-1, b, self.k, hidden_size)
         s = s.data
+
         return output, h_t, h_n, s, l, p
 
     def _mask_symbol_scores(self, score, idx, masking_score=-float('inf')):

@@ -65,7 +65,7 @@ class SupervisedTrainer(object):
         loss.reset()
         for step, step_output in enumerate(decoder_outputs):
             batch_size = target_variable.size(0)
-            step_o = step_output.contiguous().view(batch_size, -1).cuda()
+            step_o = step_output.contiguous().view(batch_size, -1)
             loss.eval_batch(step_o, target_variable[:, step + 1])
 
         # Backward propagation
