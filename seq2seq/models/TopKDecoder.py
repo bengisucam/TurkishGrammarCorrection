@@ -150,7 +150,7 @@ class TopKDecoder(torch.nn.Module):
             sequence_scores = scores.view(batch_size * self.k, 1)
 
             # Update fields for next timestep
-            predecessors = (torch.floor_divide(candidates , self.V) + self.pos_index.expand_as(candidates)).view(batch_size * self.k, 1)
+            predecessors = (torch.true_divide(candidates , self.V) + self.pos_index.expand_as(candidates)).view(batch_size * self.k, 1)
             if isinstance(hidden, tuple):
                 hidden = tuple([h.index_select(1, predecessors.squeeze()) for h in hidden])
             else:
