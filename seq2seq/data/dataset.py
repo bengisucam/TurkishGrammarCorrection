@@ -3,6 +3,7 @@ from collections import Counter
 
 import torch
 import torchtext
+from torchtext.vocab import FastText
 
 from . import SourceField, TargetField
 from .. import src_field_name, tgt_field_name
@@ -83,6 +84,6 @@ class Seq2SeqDataset(torchtext.data.Dataset):
                 tgt_field = TargetField()
         return Seq2SeqDataset(corpus, src_field, tgt_field, **kwargs)
 
-    def build_vocab(self, src_vocab_size, tgt_vocab_size):
-        self.src_field.build_vocab(self, max_size=src_vocab_size)
-        self.tgt_field.build_vocab(self, max_size=tgt_vocab_size)
+    def build_vocab(self, src_vocab_size, tgt_vocab_size,embeddings):
+        self.src_field.build_vocab(self, max_size=src_vocab_size, vectors=embeddings)
+        self.tgt_field.build_vocab(self, max_size=tgt_vocab_size, vectors=embeddings)

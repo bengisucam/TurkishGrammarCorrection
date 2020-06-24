@@ -1,13 +1,15 @@
 #!/usr/bin/env python
+import sys
 from builtins import input
 
 import os
 import time
 import logging
+sys.path.append("/content/drive/My Drive/GrammarCorr/TurkishGrammarCorrection/")
 
-import click
 import torch
 from torch.optim.lr_scheduler import StepLR
+from torchtext.vocab import FastText
 
 from seq2seq.trainer import SupervisedTrainer
 from seq2seq.models import EncoderRNN, DecoderRNN, Seq2seq
@@ -20,34 +22,7 @@ from seq2seq.util.checkpoint import Checkpoint
 LOG_FORMAT = '%(asctime)s:%(name)s:%(levelname)s: %(message)s'
 
 
-# @click.command()
-# @click.argument('train-source')
-# @click.argument('train-target')
-# @click.argument('dev-source')
-# @click.argument('dev-target')
-# @click.option(
-#     '-expt',
-#     '--experiment-directory',
-#     default='./experiment',
-#     help='path to save directory (use with --load-checkpoint)',
-# )
-# @click.option(
-#     '-c',
-#     '--checkpoint',
-#     help='load a previously saved checkpoint',
-# )
-# @click.option(
-#     '-r',
-#     '--resume',
-#     is_flag=True,
-#     help='resume training from last checkpoint',
-# )
-# @click.option(
-#     '-v',
-#     '--log-level',
-#     default='info',
-#     help='logging level',
-# )
+
 def sample(
         train_source,
         train_target,
@@ -139,7 +114,8 @@ def train_model(
 ):
     # Prepare dataset
     train = Seq2SeqDataset.from_file(train_source, train_target)
-    train.build_vocab(50000, 50000)
+    embeddings = FastText(language='tr', cache='../train/vectors')
+    train.build_vocab(500000, 500000,embeddings)
     dev = Seq2SeqDataset.from_file(
         dev_source,
         dev_target,
@@ -159,13 +135,13 @@ def train_model(
     optimizer = None
     if not resume:
         seq2seq, optimizer, scheduler = initialize_model(
-            train, input_vocab, output_vocab)
+            train, input_vocab, output_vocab,input_vocab.vectors)
 
     # Train
     trainer = SupervisedTrainer(
         loss=loss,
-        batch_size=64,
-        checkpoint_every=50,
+        batch_size=32,
+        checkpoint_every=1000,
         print_every=10,
         experiment_directory=experiment_directory,
     )
@@ -177,7 +153,7 @@ def train_model(
             n_epochs=20,
             dev_data=dev,
             optimizer=optimizer,
-            teacher_forcing_ratio=0.5,
+            teacher_forcing_ratio=1.0,
             resume=resume,
         )
     # Capture ^C
@@ -193,9 +169,10 @@ def initialize_model(
         train,
         input_vocab,
         output_vocab,
-        max_len=50,
-        hidden_size=128,
-        dropout_p=0,
+        embeddings,
+        max_len=16,
+        hidden_size=300,
+        dropout_p=0.1,
         bidirectional=True,
 ):
     # Initialize model
@@ -203,6 +180,8 @@ def initialize_model(
         len(input_vocab),
         max_len,
         hidden_size,
+        n_layers=2,
+        embedding=embeddings,
         bidirectional=bidirectional,
         variable_lengths=True,
     )
@@ -210,6 +189,7 @@ def initialize_model(
         len(output_vocab),
         max_len,
         hidden_size * (2 if bidirectional else 1),
+        n_layers=2,
         dropout_p=dropout_p,
         use_attention=True,
         bidirectional=bidirectional,
@@ -226,7 +206,7 @@ def initialize_model(
     # Optimizer and learning rate scheduler can be customized by
     # explicitly constructing the objects and pass to the trainer
     optimizer = Optimizer(
-        torch.optim.Adam(seq2seq.parameters()), max_grad_norm=5)
+        torch.optim.Adam(seq2seq.parameters(),lr=0.0012), max_grad_norm=5)
     scheduler = StepLR(optimizer.optimizer, 1)
     optimizer.set_scheduler(scheduler)
 
@@ -236,6 +216,6 @@ def initialize_model(
 if __name__ == '__main__':
     TRAIN_SRC="../data/source.txt"
     TRAIN_TGT="../data/target.txt"
-    DEV_SRC="../data/toy_reverse/dev/src.txt"
-    DEV_TGT="../data/toy_reverse/dev/tgt.txt"
+    DEV_SRC="../data/traintest/source.txt"
+    DEV_TGT="../data/traintest/target.txt"
     sample(TRAIN_SRC,TRAIN_TGT,DEV_SRC,DEV_TGT,"../expt",None,False,"info")
