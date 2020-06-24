@@ -95,9 +95,6 @@ class DecoderRNN(BaseRNN):
         batch_size = input_var.size(0)
         output_size = input_var.size(1)
 
-        h,c=hidden
-        hidden=h.cuda(),c.cuda()
-        input_var=input_var.cuda()
         char_embeds=self.char_embedding(input_var)
         word_embeds = self.word_embedding(input_var)
 
@@ -107,7 +104,7 @@ class DecoderRNN(BaseRNN):
 
         attn = None
         if self.use_attention:
-            output, attn = self.attention(output, encoder_outputs.cuda())
+            output, attn = self.attention(output, encoder_outputs)
 
         predicted_softmax = function(self.out(output.contiguous().view(-1, self.hidden_size)), dim=1).view(batch_size,
                                                                                                            output_size,
