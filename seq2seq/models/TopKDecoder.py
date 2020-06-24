@@ -91,7 +91,7 @@ class TopKDecoder(torch.nn.Module):
         inputs, batch_size, max_length = self.rnn._validate_args(inputs, encoder_hidden, encoder_outputs,
                                                                  function, teacher_forcing_ratio)
 
-        self.pos_index = Variable(torch.LongTensor(range(batch_size)) * self.k).view(-1, 1).cuda()
+        self.pos_index = Variable(torch.LongTensor(range(batch_size)) * self.k).view(-1, 1)
 
         # Inflate the initial hidden states to be of size: b*k x h
         encoder_hidden = self.rnn._init_state(encoder_hidden)
@@ -114,10 +114,10 @@ class TopKDecoder(torch.nn.Module):
         sequence_scores = torch.Tensor(batch_size * self.k, 1)
         sequence_scores.fill_(-float('Inf'))
         sequence_scores.index_fill_(0, torch.LongTensor([i * self.k for i in range(0, batch_size)]), 0.0)
-        sequence_scores = Variable(sequence_scores).cuda()
+        sequence_scores = Variable(sequence_scores)
 
         # Initialize the input vector
-        input_var = Variable(torch.transpose(torch.LongTensor([[self.SOS] * batch_size * self.k]), 0, 1)).cuda()
+        input_var = Variable(torch.transpose(torch.LongTensor([[self.SOS] * batch_size * self.k]), 0, 1))
 
         # Store decisions for backtracking
         stored_outputs = list()
@@ -127,6 +127,7 @@ class TopKDecoder(torch.nn.Module):
         stored_hidden = list()
 
         for _ in range(0, max_length):
+
             # Run the RNN one step forward
             log_softmax_output, hidden, _ = self.rnn.forward_step(input_var, hidden,
                                                                   inflated_encoder_outputs, function=function)
@@ -143,6 +144,7 @@ class TopKDecoder(torch.nn.Module):
             # Reshape input = (bk, 1) and sequence_scores = (bk, 1)
             input_var = (candidates % self.V).view(batch_size * self.k, 1)
             sequence_scores = scores.view(batch_size * self.k, 1)
+
             # Update fields for next timestep
             predecessors = (candidates / self.V + self.pos_index.expand_as(candidates)).view(batch_size * self.k, 1)
             if isinstance(hidden, tuple):

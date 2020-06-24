@@ -17,7 +17,7 @@ from train.predict import predict
 from seq2seq.models.bilstm import BiLSTM
 from seq2seq.dataset import SourceField, TargetField
 from seq2seq.loss import NLLLoss
-from seq2seq.models import EncoderRNN, DecoderRNN, Seq2seq, TopKDecoder
+from seq2seq.models import EncoderRNN, DecoderRNN, Seq2seq
 from seq2seq.optim import Optimizer
 from seq2seq.trainer import SupervisedTrainer
 
@@ -117,13 +117,10 @@ decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectiona
                      weights=tgt.vocab.vectors,
                      update_embedding=bool(config['dataset']['word_embeddings']['update']))
 
-topk_decoder=TopKDecoder(decoder,12)
-
-seq2seq = Seq2seq(encoder, topk_decoder)
+seq2seq = Seq2seq(encoder, decoder)
 
 if device == 'cuda':
     seq2seq.cuda()
-    topk_decoder.cuda()
 for param in seq2seq.parameters():
     param.data.uniform_(-0.08, 0.08)
 for param in bilstm.parameters():
