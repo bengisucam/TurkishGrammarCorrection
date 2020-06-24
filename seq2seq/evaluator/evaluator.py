@@ -6,7 +6,6 @@ import torchtext
 import seq2seq
 from seq2seq.loss import NLLLoss
 
-
 class Evaluator(object):
     """ Class to evaluate models with given datasets.
 
@@ -19,7 +18,7 @@ class Evaluator(object):
         self.loss = loss
         self.batch_size = batch_size
 
-    def evaluate(self, model,bilstm, data, device):
+    def evaluate(self, model, data):
         """ Evaluate a model on given dataset and return performance.
 
         Args:
@@ -30,13 +29,13 @@ class Evaluator(object):
             loss (float): loss of the given model on the given dataset
         """
         model.eval()
-        bilstm.eval()
 
         loss = self.loss
         loss.reset()
         match = 0
         total = 0
 
+        device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         batch_iterator = torchtext.data.BucketIterator(
             dataset=data, batch_size=self.batch_size,
             sort=True, sort_key=lambda x: len(x.src),
@@ -46,19 +45,15 @@ class Evaluator(object):
 
         with torch.no_grad():
             for batch in batch_iterator:
-                input_variables, input_lengths = getattr(batch, seq2seq.src_field_name)
-                target_variables = getattr(batch, seq2seq.tgt_field_name)
-
-                char_word_embeds_source = bilstm(input_variables)
-                decoder_outputs, decoder_hidden, other = model(input_variables, input_lengths.tolist(),
-                                                               target_variables,
-                                                               char_word_embeds=char_word_embeds_source)
+                decoder_outputs, _, other = model(batch)
 
                 # Evaluation
+                loss.eval_batch(decoder_outputs, batch)
+
                 seqlist = other['sequence']
-                for step, step_output in enumerate(decoder_outputs):
+                target_variables = getattr(batch, seq2seq.tgt_field_name)
+                for step, _ in enumerate(decoder_outputs):
                     target = target_variables[:, step + 1]
-                    loss.eval_batch(step_output.view(target_variables.size(0), -1), target)
 
                     non_padding = target.ne(pad)
                     correct = seqlist[step].view(-1).eq(target).masked_select(non_padding).sum().item()

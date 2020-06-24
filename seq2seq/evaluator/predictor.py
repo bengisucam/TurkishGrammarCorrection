@@ -1,10 +1,12 @@
 import torch
 from torch.autograd import Variable
+import torchtext
 
+from seq2seq.data import Seq2SeqDataset
 
 class Predictor(object):
 
-    def __init__(self, model,bilstm, src_vocab, tgt_vocab, device='cuda'):
+    def __init__(self, model, src_vocab, tgt_vocab):
         """
         Predictor class to evaluate for a given model.
         Args:
@@ -13,74 +15,39 @@ class Predictor(object):
             src_vocab (seq2seq.dataset.vocabulary.Vocabulary): source sequence vocabulary
             tgt_vocab (seq2seq.dataset.vocabulary.Vocabulary): target sequence vocabulary
         """
-        self.device=device
-        self.bilstm = bilstm
-        if self.device=='cuda':
+        if torch.cuda.is_available():
             self.model = model.cuda()
-            self.bilstm = bilstm.cuda()
         else:
             self.model = model.cpu()
-            self.bilstm = bilstm.cpu()
         self.model.eval()
-        self.bilstm.eval()
-
-
         self.src_vocab = src_vocab
         self.tgt_vocab = tgt_vocab
-
-    def get_decoder_features(self, src_seq):
-        src_id_seq = torch.LongTensor([self.src_vocab.stoi[tok] for tok in src_seq]).view(1, -1)
-        if self.device=='cuda':
-            src_id_seq = src_id_seq.cuda()
-        else:
-            src_id_seq = src_id_seq.cpu()
-
-        char_word_embeds_source = self.bilstm(src_id_seq)
-        with torch.no_grad():
-            softmax_list, _, other = self.model(
-                src_id_seq, [len(src_seq)],
-                char_word_embeds=char_word_embeds_source,
-                teacher_forcing_ratio=0)
-
-        return other
 
     def predict(self, src_seq):
         """ Make prediction given `src_seq` as input.
 
         Args:
-            src_seq (list): list of tokens in source language
+            src_seq (list): list of input tokens in source language
 
         Returns:
-            tgt_seq (list): list of tokens in target language as predicted
+            tgt_seq (list): list of output tokens in target language as predicted
             by the pre-trained model
         """
-        other = self.get_decoder_features(src_seq)
+        with torch.no_grad():
+            src_id_seq = Variable(torch.LongTensor([self.src_vocab.stoi[tok] 
+                                    for tok in src_seq])).view(1, -1)
+            if torch.cuda.is_available():
+                src_id_seq = src_id_seq.cuda()
 
+            dataset = Seq2SeqDataset.from_list(' '.join(src_seq))
+            dataset.vocab = self.src_vocab
+            batch = torchtext.data.Batch.fromvars(dataset, 1, 
+                        src=(src_id_seq, [len(src_seq)]), tgt=None)
+
+            _, _, other = self.model(batch)
+            
         length = other['length'][0]
 
         tgt_id_seq = [other['sequence'][di][0].data[0] for di in range(length)]
         tgt_seq = [self.tgt_vocab.itos[tok] for tok in tgt_id_seq]
         return tgt_seq
-
-    def predict_n(self, src_seq, n=1):
-        """ Make 'n' predictions given `src_seq` as input.
-
-        Args:
-            src_seq (list): list of tokens in source language
-            n (int): number of predicted seqs to return. If None,
-                     it will return just one seq.
-
-        Returns:
-            tgt_seq (list): list of tokens in target language as predicted
-                            by the pre-trained model
-        """
-        other = self.get_decoder_features(src_seq)
-
-        result = []
-        for x in range(0, int(n)):
-            length = other['topk_length'][0][x]
-            tgt_id_seq = [other['topk_sequence'][di][0, x, 0].data[0] for di in range(length)]
-            tgt_seq = [self.tgt_vocab.itos[tok] for tok in tgt_id_seq]
-            result.append(tgt_seq)
-
-        return result

@@ -2,10 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
-class Attention(nn.Module):
+class DotAttention(nn.Module):
     r"""
-    Applies an attention mechanism on the output features from the decoder.
+    Applies a dot attention mechanism on the output features from the decoder.
 
     .. math::
             \begin{array}{ll}
@@ -31,14 +30,14 @@ class Attention(nn.Module):
 
     Examples::
 
-         >>> attention = seq2seq.models.Attention(256)
+         >>> attention = seq2seq.models.DotAttention(256)
          >>> context = Variable(torch.randn(5, 3, 256))
          >>> output = Variable(torch.randn(5, 5, 256))
          >>> output, attn = attention(output, context)
 
     """
     def __init__(self, dim):
-        super(Attention, self).__init__()
+        super(DotAttention, self).__init__()
         self.linear_out = nn.Linear(dim*2, dim)
         self.mask = None
 
@@ -67,6 +66,6 @@ class Attention(nn.Module):
         # concat -> (batch, out_len, 2*dim)
         combined = torch.cat((mix, output), dim=2)
         # output -> (batch, out_len, dim)
-        output = self.linear_out(combined.view(-1, 2 * hidden_size)).tanh().view(batch_size, -1, hidden_size)
+        output = torch.tanh(self.linear_out(combined.view(-1, 2 * hidden_size))).view(batch_size, -1, hidden_size)
 
         return output, attn

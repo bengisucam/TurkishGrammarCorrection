@@ -1,6 +1,4 @@
 from __future__ import print_function
-
-import logging
 import os
 import time
 import shutil
@@ -32,15 +30,14 @@ class Checkpoint(object):
         OUTPUT_VOCAB_FILE (str): name of the output vocab file
     """
 
+    CHECKPOINT_DIR_NAME = 'checkpoints'
     TRAINER_STATE_NAME = 'trainer_states.pt'
     MODEL_NAME = 'model.pt'
-    BILSTM_NAME='bilstm.pt'
     INPUT_VOCAB_FILE = 'input_vocab.pt'
     OUTPUT_VOCAB_FILE = 'output_vocab.pt'
 
-    def __init__(self, model, bilstm, optimizer, epoch, step, input_vocab, output_vocab, path=None):
+    def __init__(self, model, optimizer, epoch, step, input_vocab, output_vocab, path=None):
         self.model = model
-        self.bilstm=bilstm
         self.optimizer = optimizer
         self.input_vocab = input_vocab
         self.output_vocab = output_vocab
@@ -54,40 +51,39 @@ class Checkpoint(object):
             raise LookupError("The checkpoint has not been saved.")
         return self._path
 
-    def save(self, experiment_dir,save_name):
+    def save(self, experiment_dir):
         """
         Saves the current model and related training parameters into a subdirectory of the checkpoint directory.
         The name of the subdirectory is the current local time in Y_M_D_H_M_S format.
         Args:
-            experiment_dir (str): path to the Experiments root directory
+            experiment_dir (str): path to the experiment root directory
         Returns:
              str: path to the saved checkpoint subdirectory
-             :param experiment_dir:
-             :param save_name:
         """
-        self._path = os.path.join(experiment_dir,  save_name)
+        date_time = time.strftime('%Y_%m_%d_%H_%M_%S', time.localtime())
+
+        self._path = os.path.join(experiment_dir, self.CHECKPOINT_DIR_NAME, date_time)
         path = self._path
 
-        if not os.path.exists(path):
-            # shutil.rmtree(path)
-            os.makedirs(path)
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        os.makedirs(path)
         torch.save({'epoch': self.epoch,
                     'step': self.step,
                     'optimizer': self.optimizer
                    },
                    os.path.join(path, self.TRAINER_STATE_NAME))
         torch.save(self.model, os.path.join(path, self.MODEL_NAME))
-        torch.save(self.bilstm, os.path.join(path, self.BILSTM_NAME))
 
         with open(os.path.join(path, self.INPUT_VOCAB_FILE), 'wb') as fout:
             dill.dump(self.input_vocab, fout)
         with open(os.path.join(path, self.OUTPUT_VOCAB_FILE), 'wb') as fout:
             dill.dump(self.output_vocab, fout)
-        logging.info('- saved models to {}'.format(path))
+
         return path
 
     @classmethod
-    def load(cls, path, device):
+    def load(cls, path):
         """
         Loads a Checkpoint object that was previously saved to disk.
         Args:
@@ -95,7 +91,7 @@ class Checkpoint(object):
         Returns:
             checkpoint (Checkpoint): checkpoint object with fields copied from those stored on disk
         """
-        if device == 'cuda':
+        if torch.cuda.is_available():
             resume_checkpoint = torch.load(os.path.join(path, cls.TRAINER_STATE_NAME))
             model = torch.load(os.path.join(path, cls.MODEL_NAME))
         else:
@@ -118,11 +114,11 @@ class Checkpoint(object):
     @classmethod
     def get_latest_checkpoint(cls, experiment_path):
         """
-        Given the path to an Experiments directory, returns the path to the last saved checkpoint's subdirectory.
+        Given the path to an experiment directory, returns the path to the last saved checkpoint's subdirectory.
 
         Precondition: at least one checkpoint has been made (i.e., latest checkpoint subdirectory exists).
         Args:
-            experiment_path (str): path to the Experiments directory
+            experiment_path (str): path to the experiment directory
         Returns:
              str: path to the last saved checkpoint's subdirectory
         """
