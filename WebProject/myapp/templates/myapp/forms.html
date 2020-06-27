@@ -13,8 +13,9 @@
       <form class="form" id="paper" action="/form/submit" method="post">
           {% csrf_token %}
 
-          <textarea placeholder="Buraya yazın..." id="input_text" name="in_text" rows="10" cols="50" style="overflow: hidden; word-wrap: break-word; resize: none; height: 160px; "></textarea>
-          <textarea placeholder="" id="output_text" name="out_text" rows="10" cols="50" style="overflow: hidden; word-wrap: break-word; resize: none; height: 160px; "></textarea>
+
+          <textarea placeholder="Buraya yazın..." id="input_text" name="in_text" rows="10" cols="50" style="overflow: hidden; word-wrap: break-word; resize: none; height: 160px; "> {{ input_text }} </textarea>
+          <textarea placeholder="" id="output_text" name="out_text" rows="10" cols="50" style="overflow: hidden; word-wrap: break-word; resize: none; height: 160px; "  readonly> {{ input_text }} </textarea>
         <br>
           <input id="button" type="submit" value="Düzenle">
 
