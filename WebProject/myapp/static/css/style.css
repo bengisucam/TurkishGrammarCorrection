@@ -17,11 +17,7 @@
 
 }
 
-body{
-    font-family: cursive;
-    color: darkslateblue;
-    text-align: center;
-}
+
 
 h1{
     font-size: 6em;
@@ -57,9 +53,9 @@ h3{
 
 
 a, a:hover, a:visited{
-    font-size: 3em;
+    /*font-size: 3em;*/
     font-weight: 500;
-    font-family: "Brush Script MT";
+    /*font-family: "Brush Script MT";*/
     color: black;
     display: inline-block;
     position: center;
