@@ -35,7 +35,10 @@ class BiLSTM(nn.Module):
         return output
 
     def _word2charIndices(self, word):
-        w = self.src.vocab.itos[word]
+        try:
+            w = self.src.vocab.itos[word]
+        except IndexError:
+            w = self.src.vocab.itos[0]
         tokens = self.tokenize(w)
         return torch.tensor([self.chars.vocab.stoi[i] for i in tokens])
 
