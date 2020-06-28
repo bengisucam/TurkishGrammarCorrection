@@ -6,12 +6,12 @@ import torch
 import torchtext
 import yaml
 from torch.optim.lr_scheduler import StepLR
-from torchtext.vocab import FastText, GloVe
+from torchtext.vocab import FastText
 
 import sys
 
 
-sys.path.append("/content/drive/My Drive/GrammarCorr/TurkishGrammarCorrection/")
+sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
 
 from train.predict import predict
 
