@@ -19,6 +19,7 @@ __pycache__/
 
 .vector_cache/
 vectors/
+data/newscor
 Experiments/
 *.yml
 
