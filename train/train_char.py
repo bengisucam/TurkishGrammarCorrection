@@ -65,6 +65,7 @@ max_vocab_size = int(config['dataset']['max_vocab'])
 tgt.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
 src.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
 src.vocab.extend(tgt.vocab)
+tgt.vocab.extend(src.vocab)
 
 chars.build_vocab(___, max_size=max_vocab_size)
 logging.info(f'Train size: {len(train)}\nTest size: {len(test)}\nEval size: {len(dev)}')
