@@ -33,7 +33,7 @@ class ZemberekPython(object):
 
         self.rules: List[GrammarRule] = []
 
-        self.outSentences = []
+        self.source = []
 
     def open(self, path: str):
         self.dataset = open(path, encoding='utf-8', mode='r')
@@ -51,16 +51,20 @@ class ZemberekPython(object):
             file.close()
         return count
 
-    def write(self, filePath: str, mode='w'):
-        with open(filePath, mode=mode, encoding="utf-8") as outfile:
-            outfile.write("\n".join(self.outSentences))
+    def write(self, file_path: str, mode='w', write_target=False, target_path="target.txt"):
+        with open(file_path, mode=mode, encoding="utf-8") as outfile:
+            outfile.write("\n".join(self.source))
             outfile.close()
+        if write_target:
+            with open(target_path, mode=mode, encoding="utf-8") as output:
+                output.write("\n".join(self.target))
+                output.close()
         return self
 
     def process(self, min_tok=4, max_tok=15):
         logging.info('- start time: {}'.format(datetime.datetime.now()))
-        self.outSentences.clear()
-        self.outsource=[]
+        self.source.clear()
+        self.target = []
         lines = self.dataset.read().strip().split('\n')
 
         self.dataset.close()
@@ -74,10 +78,10 @@ class ZemberekPython(object):
             # else:
 
             line = line.strip()
-
             tokens = self.Tokenize(line)
             if not min_tok <= len(tokens) <= max_tok:
                 continue
+
             for token in tokens:
 
                 newToken = self.__ApplyRules__(str(token.content))
@@ -87,7 +91,7 @@ class ZemberekPython(object):
                 builtSentence += newToken + ' '
 
             if index > 0:
-                if index % (int(len(lines)+1 / 400)) == 0:
+                if index % (int(len(lines) + 1 / 400)) == 0:
                     if print_ > 0:
                         time_passed = int(time() - last_timing)
                         estimated_time_left = (399 - print_) * time_passed
@@ -99,8 +103,9 @@ class ZemberekPython(object):
                         logging.info('- %{} is done at {}'.format(float(print_ / 4), datetime.datetime.now())),
                     last_timing = time()
                     print_ += 1
-            self.outSentences.append(builtSentence.strip())
-            self.outsource.append(f'{line.strip()}')
+            builtSentence = builtSentence[0].lower() + builtSentence    [1:]
+            self.source.append(builtSentence.strip())
+            self.target.append(f'{line.strip()}')
 
         logging.info('- end time: {}'.format(datetime.datetime.now()))
         # with open('./data/xaa_target.txt','x',encoding='utf-8') as target:
@@ -114,7 +119,7 @@ class ZemberekPython(object):
         analysis = self.AnalyzeWord(token)
         for rule in self.rules:
             if rule.Satisfies(token, analysis):
-                if random.random() < 0.92:
+                if random.random() < 0.9:
                     token = rule.Apply(token)
         return token
 
