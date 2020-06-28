@@ -21,12 +21,4 @@ def lowerdoc(path,out):
 
     f.close()
 if __name__ == "__main__":
-
-    lowerdoc('../data/xaa.txt','../data/data.txt')
-    exit()
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--f', '--list',dest='files', nargs='+', help='List of files to merge', required=True)
-    parser.add_argument('--out', action='store', dest='out',help='Out path with .txt at the end')
-    opt = parser.parse_args()
-
-    mergefiles(opt.files,opt.out)
+    mergefiles('../data/', opt.out)

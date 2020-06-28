@@ -15,17 +15,16 @@ def merge2CSV(inputs, out_path):
         lines = file.read().strip().split('\n')
         df[labels[i]] = lines
         file.close()
-    df.to_csv(out_path,index_label='id')
+    df.to_csv(out_path, index_label='id')
 
 
-def splitCSV(data):
-    df = pd.read_csv(data, index_col='id', quoting=0)
-    train, test_dev = train_test_split(df, test_size=0.2)
+def splitCSV(data, n_total):
+    df = pd.read_csv(data, index_col='id', quoting=0).sample(n=n_total)
+    train, test_dev = train_test_split(df, test_size=0.3)
     test, dev = train_test_split(test_dev, test_size=0.5)
-
-    train.to_csv('../data/train/train.csv')
-    test.to_csv('../data/train/test.csv')
-    dev.to_csv('../data/train/dev.csv')
+    train.to_csv('../data/train/70-15-15/train.csv')
+    test.to_csv('../data/train/70-15-15/test.csv')
+    dev.to_csv('../data/train/70-15-15/dev.csv')
 
 
 if __name__ == "__main__":
@@ -33,7 +32,8 @@ if __name__ == "__main__":
     # parser.add_argument('--f', '--list', dest='files', nargs='+', help='List of files to merge', required=True)
     # parser.add_argument('--out', action='store', dest='out', help='Out path with .txt at the end')
     # opt = parser.parse_args()
-    merge2CSV(['../data/source.txt', '../data/target.txt'], '../data/dataset_seq2seq.csv')
+    # merge2CSV(['../data/newscor_processed/source_xab.txt', '../data/newscor_processed/target_xab.txt'],
+    #           '../data/train/xab_seq2seq.csv')
 
-    splitCSV('../data/dataset_seq2seq.csv')
+    splitCSV('../data/train/70-15-15/deneme.csv',400000)
     exit()
