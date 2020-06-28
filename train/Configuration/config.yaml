@@ -13,7 +13,7 @@ dataset:
 
 
     max_length: 16
-    max_vocab: 250000
+    max_vocab: 500000
 
 model:
     char_embedding_size: 512
