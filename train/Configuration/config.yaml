@@ -2,7 +2,7 @@
 
 
 dataset:
-    path: '../data/train/xxx'
+    path: '../data/train/70-15-15'
     train: 'train.csv'
     dev: 'dev.csv'
     test: 'test.csv'
