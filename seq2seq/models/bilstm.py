@@ -53,7 +53,7 @@ class BiLSTM(nn.Module):
         return self.encode(input_variables)
 
     def _sentencetensor2charIndices(self, sentence):
-        max_char_size = 20
+        max_char_size = 21
         w = torch.empty((len(sentence), max_char_size), dtype=torch.long)
         index = 0
         for wordIndex in sentence:

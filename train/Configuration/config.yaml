@@ -16,11 +16,11 @@ dataset:
     max_vocab: 500000
 
 model:
-    char_embedding_size: 512
+    char_embedding_size: 256
     bilstm_out_size: 512
     word_embedding_size: 300
 
-    encoder_lstm_out_decoder_in: 512
+    encoder_lstm_out_decoder_in: 256
     bidirectional: True
 
     device: 'cuda'

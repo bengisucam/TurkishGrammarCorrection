@@ -35,5 +35,5 @@ if __name__ == "__main__":
     # merge2CSV(['../data/newscor_processed/source_xab.txt', '../data/newscor_processed/target_xab.txt'],
     #           '../data/train/xab_seq2seq.csv')
 
-    splitCSV('../data/train/70-15-15/deneme.csv',400000)
+    splitCSV('../data/newscor/seq2seqdata.csv',400000)
     exit()
