@@ -6,9 +6,10 @@ import torch
 import torchtext
 import yaml
 from torch.optim.lr_scheduler import StepLR
-from torchtext.vocab import FastText
+from torchtext.vocab import FastText, GloVe
 
 import sys
+
 
 sys.path.append("/content/drive/My Drive/GrammarCorr/TurkishGrammarCorrection/")
 
@@ -28,8 +29,10 @@ def parse_yaml(path):
         except yaml.YAMLError as exc:
             print(exc)
 
+
 def tokenize(sentence):
     return list(" ".join(sentence.split()))
+
 
 
 logging.basicConfig(level=logging.INFO)
@@ -58,9 +61,10 @@ embeddings = None
 if bool(config['dataset']['word_embeddings']['use']):
     embeddings = FastText(language='tr', cache='vectors')
 max_vocab_size = int(config['dataset']['max_vocab'])
-src.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
+
 tgt.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
-src.vocab.extend(tgt.vocab)
+src.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
+tgt.vocab.extend(src.vocab)
 
 chars.build_vocab(___, max_size=max_vocab_size)
 logging.info(f'Train size: {len(train)}\nTest size: {len(test)}\nEval size: {len(dev)}')
