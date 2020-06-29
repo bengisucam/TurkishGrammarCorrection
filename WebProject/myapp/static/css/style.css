@@ -53,20 +53,20 @@ h3{
 
 
 a, a:hover, a:visited{
-    /*font-size: 3em;*/
+    font-size: 2em;
     font-weight: 500;
-    /*font-family: "Brush Script MT";*/
+    font-family: "Gill Sans MT";
     color: black;
     display: inline-block;
     position: center;
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-    bottom: 30px;
+    /*margin: 600px 40em 10em 10em;*/
 }
 
-p {
-    font-size: 1.5em;
-    font-weight: 500;
-    font-family: "Gill Sans MT";
-    color: #fff;
-}
+/*p {*/
+/*    font-size: 1.5em;*/
+/*    font-weight: 500;*/
+/*    font-family: "Gill Sans MT";*/
+/*    color: #fff;*/
+/*}*/

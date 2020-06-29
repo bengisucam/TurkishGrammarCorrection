@@ -42,8 +42,9 @@
     /*display:inherit;*/
     /*padding-left:100px;*/
 	/*padding-right:100px;*/
-    margin: 100px 40px 10px 10px;
+    margin: 100px ;
     position: absolute;
+    font-family: "Gill Sans MT";
 }
 
 
@@ -76,9 +77,9 @@ body {
 	font-size:24px;
 	line-height:40px;
 	padding-left:100px;
-	padding-right:100px;
-	padding-top:45px;
-	padding-bottom:34px;
+	/*padding-right:100px;*/
+	/*padding-top:45px;*/
+	/*padding-bottom:34px;*/
 	background-image:url(https://static.tumblr.com/maopbtg/E9Bmgtoht/lines.png), url(https://static.tumblr.com/maopbtg/nBUmgtogx/paper.png);
 	background-repeat:repeat-y, repeat;
 	-webkit-border-radius:12px;
@@ -97,13 +98,15 @@ body {
     right: 300px;
 }
 
-.scroller {
-  width: initial;
-  height: initial;
-  overflow-y: scroll;
-  scrollbar-color: rebeccapurple green;
+
+
+
+#link-wrapper {
+    text-align: right;
 }
 
-#link-to-form{
-
+#link-wrapper a, p{
+    font-size: 1em;
+    font-family: "Gill Sans MT";
+    color: #fff;
 }
