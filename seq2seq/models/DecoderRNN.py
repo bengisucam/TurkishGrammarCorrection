@@ -90,12 +90,12 @@ class DecoderRNN(BaseRNN):
         self.out = nn.Linear(self.hidden_size, self.output_size)
 
 
-    def forward_step(self, input_var, hidden, encoder_outputs, function):
+    def forward_step(self, input_var, hidden, encoder_outputs, function,char_embedder):
 
         batch_size = input_var.size(0)
         output_size = input_var.size(1)
 
-        char_embeds=self.char_embedding(input_var)
+        char_embeds=char_embedder(input_var)
         word_embeds = self.word_embedding(input_var)
 
         embeddings = torch.cat([char_embeds, word_embeds], dim=2)
@@ -111,7 +111,7 @@ class DecoderRNN(BaseRNN):
                                                                                                            -1)
         return predicted_softmax, hidden, attn
 
-    def forward(self, inputs=None, encoder_hidden=None, encoder_outputs=None,
+    def forward(self, inputs=None, encoder_hidden=None, encoder_outputs=None,char_embedder=None,
                 function=F.log_softmax, teacher_forcing_ratio=1):
         ret_dict = dict()
         if self.use_attention:
@@ -146,7 +146,7 @@ class DecoderRNN(BaseRNN):
         if use_teacher_forcing:
             decoder_input = inputs[:, :-1]
             decoder_output, decoder_hidden, attn = self.forward_step(decoder_input, decoder_hidden, encoder_outputs,
-                                                                     function=function,
+                                                                     function=function,char_embedder=char_embedder
                                                                      )
 
             for di in range(decoder_output.size(1)):
@@ -161,7 +161,7 @@ class DecoderRNN(BaseRNN):
             for di in range(max_length):
                 decoder_output, decoder_hidden, step_attn = self.forward_step(decoder_input, decoder_hidden,
                                                                               encoder_outputs,
-                                                                              function=function,
+                                                                              function=function,char_embedder=char_embedder
                                                                              )
                 step_output = decoder_output.squeeze(1)
                 symbols = decode(di, step_output, step_attn)
