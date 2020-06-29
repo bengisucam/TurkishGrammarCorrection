@@ -4,9 +4,14 @@ import logging
 import os
 import time
 import shutil
-
+from seq2seq.models.bilstm import BiLSTM
+from seq2seq.dataset import SourceField, TargetField
+from seq2seq.loss import NLLLoss
+from seq2seq.models import EncoderRNN, DecoderRNN, Seq2seq
+from seq2seq.optim import Optimizer
 import torch
 import dill
+
 
 class Checkpoint(object):
     """
@@ -34,13 +39,13 @@ class Checkpoint(object):
 
     TRAINER_STATE_NAME = 'trainer_states.pt'
     MODEL_NAME = 'model.pt'
-    BILSTM_NAME='bilstm.pt'
+    BILSTM_NAME = 'bilstm.pt'
     INPUT_VOCAB_FILE = 'input_vocab.pt'
     OUTPUT_VOCAB_FILE = 'output_vocab.pt'
 
     def __init__(self, model, bilstm, optimizer, epoch, step, input_vocab, output_vocab, path=None):
         self.model = model
-        self.bilstm=bilstm
+        self.bilstm = bilstm
         self.optimizer = optimizer
         self.input_vocab = input_vocab
         self.output_vocab = output_vocab
@@ -54,7 +59,7 @@ class Checkpoint(object):
             raise LookupError("The checkpoint has not been saved.")
         return self._path
 
-    def save(self, experiment_dir,save_name):
+    def save(self, experiment_dir, save_name):
         """
         Saves the current model and related training parameters into a subdirectory of the checkpoint directory.
         The name of the subdirectory is the current local time in Y_M_D_H_M_S format.
@@ -65,7 +70,7 @@ class Checkpoint(object):
              :param experiment_dir:
              :param save_name:
         """
-        self._path = os.path.join(experiment_dir,  save_name)
+        self._path = os.path.join(experiment_dir, save_name)
         path = self._path
 
         if not os.path.exists(path):
@@ -74,10 +79,10 @@ class Checkpoint(object):
         torch.save({'epoch': self.epoch,
                     'step': self.step,
                     'optimizer': self.optimizer
-                   },
+                    },
                    os.path.join(path, self.TRAINER_STATE_NAME))
-        torch.save(self.model, os.path.join(path, self.MODEL_NAME))
-        torch.save(self.bilstm, os.path.join(path, self.BILSTM_NAME))
+        torch.save(self.model.state_dict(), os.path.join(path, self.MODEL_NAME))
+        torch.save(self.bilstm.state_dict(), os.path.join(path, self.BILSTM_NAME))
 
         with open(os.path.join(path, self.INPUT_VOCAB_FILE), 'wb') as fout:
             dill.dump(self.input_vocab, fout)
@@ -97,12 +102,16 @@ class Checkpoint(object):
         """
         if device == 'cuda':
             resume_checkpoint = torch.load(os.path.join(path, cls.TRAINER_STATE_NAME))
+            bilstm = torch.load(os.path.join(path, cls.BILSTM_NAME))
             model = torch.load(os.path.join(path, cls.MODEL_NAME))
-        else:
-            resume_checkpoint = torch.load(os.path.join(path, cls.TRAINER_STATE_NAME), map_location=lambda storage, loc: storage)
-            model = torch.load(os.path.join(path, cls.MODEL_NAME), map_location=lambda storage, loc: storage)
 
-        model.flatten_parameters() # make RNN parameters contiguous
+        else:
+            resume_checkpoint = torch.load(os.path.join(path, cls.TRAINER_STATE_NAME),
+                                           map_location=lambda storage, loc: storage)
+            model = torch.load(os.path.join(path, cls.MODEL_NAME), map_location=lambda storage, loc: storage)
+            bilstm = torch.load(os.path.join(path, cls.BILSTM_NAME), map_location=lambda storage, loc: storage)
+        bilstm.rnn.flatten_parameters()
+        model.flatten_parameters()  # make RNN parameters contiguous
         with open(os.path.join(path, cls.INPUT_VOCAB_FILE), 'rb') as fin:
             input_vocab = dill.load(fin)
         with open(os.path.join(path, cls.OUTPUT_VOCAB_FILE), 'rb') as fin:
@@ -110,6 +119,7 @@ class Checkpoint(object):
         optimizer = resume_checkpoint['optimizer']
         return Checkpoint(model=model, input_vocab=input_vocab,
                           output_vocab=output_vocab,
+                          bilstm=bilstm,
                           optimizer=optimizer,
                           epoch=resume_checkpoint['epoch'],
                           step=resume_checkpoint['step'],
