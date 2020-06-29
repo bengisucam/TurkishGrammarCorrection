@@ -9,26 +9,26 @@
 </head>
 <body>
   <div id="form-wrapper">
-
       <form class="form" id="paper" action="/form/submit" method="post">
           {% csrf_token %}
+
+        <div id="link-wrapper">
+            <p><a id="link-to-form" href="{% url 'home-page' %}">Anasayfa</a></p>
+        </div>
 
           <label for="in_text">Buraya yazın... </label>
           <textarea placeholder="Buraya yazın..." id="input_text" name="in_text" rows="5" cols="50" style="overflow-y:scroll;" >
               {{ input_text }}
           </textarea>
           <textarea placeholder="" id="output_text" name="out_text" rows="5" cols="50" style="overflow-y:scroll;"  readonly>
-              {{ input_text }}
+              {{ output_text }}
           </textarea>
         <br>
           <input id="button" type="submit" value="Düzenle">
 
       </form>
-
   </div>
 
-    <div id="base-link">
-        <p><a id="link-to-form" href="{% url 'home-page' %}">Anasayfa</a></p>
-    </div>
+
 </body>
 </html>
