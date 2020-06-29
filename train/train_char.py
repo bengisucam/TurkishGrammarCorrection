@@ -10,7 +10,6 @@ from torchtext.vocab import FastText
 
 import sys
 
-
 sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
 
 from train.predict import predict
@@ -22,6 +21,7 @@ from seq2seq.models import EncoderRNN, DecoderRNN, Seq2seq
 from seq2seq.optim import Optimizer
 from seq2seq.trainer import SupervisedTrainer
 
+
 def parse_yaml(path):
     with open(path, 'r') as stream:
         try:
@@ -32,7 +32,6 @@ def parse_yaml(path):
 
 def tokenize(sentence):
     return list(" ".join(sentence.split()))
-
 
 
 logging.basicConfig(level=logging.INFO)
@@ -62,10 +61,9 @@ if bool(config['dataset']['word_embeddings']['use']):
     embeddings = FastText(language='tr', cache='vectors')
 max_vocab_size = int(config['dataset']['max_vocab'])
 
-tgt.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
-src.build_vocab(train, max_size=max_vocab_size, vectors=embeddings)
-src.vocab.extend(tgt.vocab)
-tgt.vocab.extend(src.vocab)
+tgt.build_vocab(train, dev, test, max_size=max_vocab_size, vectors=embeddings)
+src.build_vocab(train, dev, test, max_size=max_vocab_size, vectors=embeddings)
+
 
 chars.build_vocab(___, max_size=max_vocab_size)
 logging.info(f'Train size: {len(train)}\nTest size: {len(test)}\nEval size: {len(dev)}')
@@ -74,7 +72,7 @@ logging.info(f'- tgt vocab size: {len(tgt.vocab)}')
 logging.info(f'- chars vocab size: {len(chars.vocab)}')
 input_vocab = src.vocab
 output_vocab = tgt.vocab
-
+exit()
 logging.info(chars.vocab.stoi)
 
 device = config['model']['device']
