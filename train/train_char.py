@@ -34,6 +34,8 @@ def tokenize(sentence):
     return list(" ".join(sentence.split()))
 
 
+
+
 logging.basicConfig(level=logging.INFO)
 
 config = parse_yaml('Configuration/config.yaml')
@@ -61,8 +63,10 @@ if bool(config['dataset']['word_embeddings']['use']):
     embeddings = FastText(language='tr', cache='vectors')
 max_vocab_size = int(config['dataset']['max_vocab'])
 
-tgt.build_vocab(train, dev, test, max_size=max_vocab_size, vectors=embeddings)
+tgt.build_vocab(train, dev, test, max_size=max_vocab_size)
 src.build_vocab(train, dev, test, max_size=max_vocab_size, vectors=embeddings)
+
+
 
 
 chars.build_vocab(___, max_size=max_vocab_size)
@@ -72,7 +76,6 @@ logging.info(f'- tgt vocab size: {len(tgt.vocab)}')
 logging.info(f'- chars vocab size: {len(chars.vocab)}')
 input_vocab = src.vocab
 output_vocab = tgt.vocab
-exit()
 logging.info(chars.vocab.stoi)
 
 device = config['model']['device']
@@ -116,14 +119,14 @@ decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectiona
                      use_attention=bool(config['model']['use_attention']),
                      bidirectional=bidirectional,
                      eos_id=tgt.eos_id, sos_id=tgt.sos_id,
-                     embedder=bilstm,
                      weights=tgt.vocab.vectors,
                      update_embedding=bool(config['dataset']['word_embeddings']['update']))
 
 seq2seq = Seq2seq(encoder, decoder)
-
 if device == 'cuda':
     seq2seq.cuda()
+    bilstm.cuda()
+
 for param in seq2seq.parameters():
     param.data.uniform_(-0.08, 0.08)
 for param in bilstm.parameters():

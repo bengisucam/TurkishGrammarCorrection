@@ -49,11 +49,9 @@ class Evaluator(object):
                 input_variables, input_lengths = getattr(batch, seq2seq.src_field_name)
                 target_variables = getattr(batch, seq2seq.tgt_field_name)
 
-                char_word_embeds_source = bilstm(input_variables)
                 decoder_outputs, decoder_hidden, other = model(input_variables, input_lengths.tolist(),
                                                                target_variables,
-                                                               char_word_embeds=char_word_embeds_source)
-
+                                                               bilstm=bilstm)
                 # Evaluation
                 seqlist = other['sequence']
                 for step, step_output in enumerate(decoder_outputs):
