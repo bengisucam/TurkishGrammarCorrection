@@ -67,7 +67,7 @@ max_vocab_size = int(config['dataset']['max_vocab'])
 
 tgt.build_vocab(train, dev, test, max_size=max_vocab_size)
 src.build_vocab(train, dev, test, max_size=max_vocab_size, vectors=embeddings)
-
+tgt.vocab.extend(src.vocab)
 
 
 
