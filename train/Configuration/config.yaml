@@ -39,8 +39,8 @@ model:
 
     use_attention: True
     n_layers: 2
-    dropout_input: 0.4
-    dropout_output: 0.2
+    dropout_input: 0.25
+    dropout_output: 0.25
 
     variable_lengths: True
 
