@@ -92,7 +92,7 @@ class Checkpoint(object):
         return path
 
     @classmethod
-    def load(cls, path, device):
+    def load(cls, path, device,seq2seq,bilstm):
         """
         Loads a Checkpoint object that was previously saved to disk.
         Args:
@@ -102,22 +102,24 @@ class Checkpoint(object):
         """
         if device == 'cuda':
             resume_checkpoint = torch.load(os.path.join(path, cls.TRAINER_STATE_NAME))
-            bilstm = torch.load(os.path.join(path, cls.BILSTM_NAME))
+            embedder = torch.load(os.path.join(path, cls.BILSTM_NAME))
             model = torch.load(os.path.join(path, cls.MODEL_NAME))
 
         else:
             resume_checkpoint = torch.load(os.path.join(path, cls.TRAINER_STATE_NAME),
                                            map_location=lambda storage, loc: storage)
             model = torch.load(os.path.join(path, cls.MODEL_NAME), map_location=lambda storage, loc: storage)
-            bilstm = torch.load(os.path.join(path, cls.BILSTM_NAME), map_location=lambda storage, loc: storage)
-        bilstm.rnn.flatten_parameters()
-        model.flatten_parameters()  # make RNN parameters contiguous
+            embedder = torch.load(os.path.join(path, cls.BILSTM_NAME), map_location=lambda storage, loc: storage)
+        seq2seq.load_state_dict(model)
+        bilstm.load_state_dict(embedder)
+        # embedder.rnn.flatten_parameters()
+        # model.flatten_parameters()  # make RNN parameters contiguous
         with open(os.path.join(path, cls.INPUT_VOCAB_FILE), 'rb') as fin:
             input_vocab = dill.load(fin)
         with open(os.path.join(path, cls.OUTPUT_VOCAB_FILE), 'rb') as fin:
             output_vocab = dill.load(fin)
         optimizer = resume_checkpoint['optimizer']
-        return Checkpoint(model=model, input_vocab=input_vocab,
+        return Checkpoint(model=seq2seq, input_vocab=input_vocab,
                           output_vocab=output_vocab,
                           bilstm=bilstm,
                           optimizer=optimizer,
