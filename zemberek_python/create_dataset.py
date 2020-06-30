@@ -30,9 +30,9 @@ Rules = \
         # GrammarRule().IfContentIs([',']).IfPrimaryPosIs('Punc').ChangeTo(['-']).WithChance(
         #     1.0).AddDescription("virgül sil"),
 
-        # GrammarRule().IfContentIs(soru_ekleri).
-        #     ChangeTo(soru_ekleri_Target)
-        #     .AddDescription("Ayri yazılan de/da'yi birlestir"),
+        GrammarRule().IfContentIs(soru_ekleri).
+            ChangeTo(soru_ekleri_Target)
+            .AddDescription("Ayri yazılan de/da'yi birlestir"),
         # GrammarRule().IfUpperCase().Lower().AddDescription("Büyük harfleri küçült"),
         # GrammarRule().IfSecondaryPosIs('ProperNoun').IfUpperCase().Remove('\'').AddDescription(
         #     "Kesme işaretlerini sil"),
