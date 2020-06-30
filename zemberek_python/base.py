@@ -103,9 +103,10 @@ class ZemberekPython(object):
                         logging.info('- %{} is done at {}'.format(float(print_ / 4), datetime.datetime.now())),
                     last_timing = time()
                     print_ += 1
-            builtSentence = builtSentence[0].lower() + builtSentence    [1:]
-            self.source.append(builtSentence.strip())
-            self.target.append(f'{line.strip()}')
+            builtSentence = builtSentence[0].lower() + builtSentence[1:]
+            if line != builtSentence.strip():
+                self.source.append(builtSentence.strip())
+                self.target.append(f'{line.strip()}')
 
         logging.info('- end time: {}'.format(datetime.datetime.now()))
         # with open('./data/xaa_target.txt','x',encoding='utf-8') as target:

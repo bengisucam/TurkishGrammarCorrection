@@ -13,12 +13,15 @@ def mergefiles(directories, out_path):
         out_file.write(out)
 
 
-def lowerdoc(path,out):
-    f=open(path,'r',encoding='utf-8')
-    doc=f.read().strip().lower().replace('baykan','bakan').replace('\'','').replace('"','').replace('-','').replace(':','').replace('  ',' ')
-    with open(out,'x',encoding='utf-8') as ofile:
+def lowerdoc(path, out):
+    f = open(path, 'r', encoding='utf-8')
+    doc = f.read().strip().lower().replace('\'', '').replace('"', '').replace('-', '').replace(':', '').replace('  ',
+                                                                                                                ' ')
+    with open(out, 'x', encoding='utf-8') as ofile:
         ofile.write(doc)
 
     f.close()
+
+
 if __name__ == "__main__":
     mergefiles('../data/', opt.out)

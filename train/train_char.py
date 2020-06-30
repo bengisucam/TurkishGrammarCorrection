@@ -10,9 +10,11 @@ from torchtext.vocab import FastText
 
 import sys
 
-sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
 
-from train.predict import predict
+sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
+from seq2seq.util.checkpoint import Checkpoint
+
+from train.predict import predict, predict_single
 
 from seq2seq.models.bilstm import BiLSTM
 from seq2seq.dataset import SourceField, TargetField
@@ -123,6 +125,15 @@ decoder = DecoderRNN(len(tgt.vocab), max_length, hidden_size * 2 if bidirectiona
                      update_embedding=bool(config['dataset']['word_embeddings']['update']))
 
 seq2seq = Seq2seq(encoder, decoder)
+# checkpoint=Checkpoint.load('Experiments','cuda',seq2seq,bilstm)
+# seq2seq=checkpoint.model
+# bilstm=checkpoint.bilstm
+# output_vocab=checkpoint.output_vocab
+# input_vocab=checkpoint.input_vocab
+# while True:
+#     sentence = input("Type something!")
+#     print(predict_single(sentence,seq2seq,bilstm,input_vocab,output_vocab,'cuda'))
+
 if device == 'cuda':
     seq2seq.cuda()
     bilstm.cuda()
