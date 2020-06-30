@@ -109,4 +109,8 @@ body {
     font-size: 1em;
     font-family: "Gill Sans MT";
     color: #fff;
+    top: 20%;
+    left: 80%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
 }
