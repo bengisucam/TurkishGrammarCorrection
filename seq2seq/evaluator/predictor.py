@@ -35,11 +35,10 @@ class Predictor(object):
         else:
             src_id_seq = src_id_seq.cpu()
 
-        char_word_embeds_source = self.bilstm(src_id_seq)
         with torch.no_grad():
             softmax_list, _, other = self.model(
                 src_id_seq, [len(src_seq)],
-                char_word_embeds=char_word_embeds_source,
+                bilstm=self.bilstm,
                 teacher_forcing_ratio=0)
 
         return other

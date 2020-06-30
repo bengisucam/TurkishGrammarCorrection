@@ -91,6 +91,37 @@ class Checkpoint(object):
         logging.info('- saved models to {}'.format(path))
         return path
 
+    def save_legacy(self, experiment_dir, save_name):
+        """
+        Saves the current model and related training parameters into a subdirectory of the checkpoint directory.
+        The name of the subdirectory is the current local time in Y_M_D_H_M_S format.
+        Args:
+            experiment_dir (str): path to the Experiments root directory
+        Returns:
+             str: path to the saved checkpoint subdirectory
+             :param experiment_dir:
+             :param save_name:
+        """
+        self._path = os.path.join(experiment_dir, save_name)
+        path = self._path
+
+        if not os.path.exists(path):
+            # shutil.rmtree(path)
+            os.makedirs(path)
+        torch.save({'epoch': self.epoch,
+                    'step': self.step,
+                    'optimizer': self.optimizer
+                    },
+                   os.path.join(path, self.TRAINER_STATE_NAME))
+        torch.save(self.model, os.path.join(path, self.MODEL_NAME))
+        torch.save(self.bilstm, os.path.join(path, self.BILSTM_NAME))
+
+        with open(os.path.join(path, self.INPUT_VOCAB_FILE), 'wb') as fout:
+            dill.dump(self.input_vocab, fout)
+        with open(os.path.join(path, self.OUTPUT_VOCAB_FILE), 'wb') as fout:
+            dill.dump(self.output_vocab, fout)
+        logging.info('- saved models to {}'.format(path))
+        return path
     @classmethod
     def load(cls, path, device,seq2seq,bilstm):
         """
