@@ -17,7 +17,7 @@ dataset:
 
 model:
     char_embedding_size: 256
-    bilstm_out_size: 512
+    bilstm_out_size: 256
     word_embedding_size: 300
 
     encoder_lstm_out_decoder_in: 256
@@ -39,13 +39,13 @@ model:
 
     use_attention: True
     n_layers: 2
-    dropout_input: 0.1
-    dropout_output: 0.1
+    dropout_input: 0.4
+    dropout_output: 0.2
 
     variable_lengths: True
 
 train:
-    lr: 0.0012
+    lr: 0.0016
     teacher_forcing_ratio: 1.25
     batch_size: 64
     epoch: 10
