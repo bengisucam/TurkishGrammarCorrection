@@ -2,7 +2,7 @@
 
 
 dataset:
-    path: '../data/train/70-15-15'
+    path: '../data/train'
     train: 'train.csv'
     dev: 'dev.csv'
     test: 'test.csv'
@@ -45,7 +45,7 @@ model:
     variable_lengths: True
 
 train:
-    lr: 0.0016
+    lr: 0.0013
     teacher_forcing_ratio: 1.25
     batch_size: 64
     epoch: 10
