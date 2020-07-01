@@ -5,14 +5,13 @@ import torch.nn.functional as F
 
 
 class BiLSTM(nn.Module):
-    def __init__(self, hidden_size=64, embed_size=64, layers=1, chars=None, src=None, lstm_dropout=0.25):
+    def __init__(self, hidden_size=64, embed_size=64, layers=1, char_vocab=None, src_vocab=None, lstm_dropout=0.25):
         super(BiLSTM, self).__init__()
 
-        self.chars = chars
-        self.src = src
+        self.char_vocab = char_vocab
+        self.src_vocab = src_vocab
 
-        self.vocab = self.chars.vocab
-        char_size = len(self.chars.vocab)
+        char_size = len(self.char_vocab)
 
         self.hidden_size = hidden_size
         self.char_embedding = nn.Embedding(char_size, embed_size)
@@ -23,8 +22,10 @@ class BiLSTM(nn.Module):
         self.rnn = nn.LSTM(embed_size, hidden_size, bidirectional=True, batch_first=True, dropout=lstm_dropout,
                            num_layers=layers)
 
-    def tokenize(self, sentence):
-        return self.chars.tokenize(sentence)
+
+
+    def tokenize(self,sentence):
+        return list(" ".join(sentence.split()))
 
     def forward(self, input):
 
@@ -36,11 +37,11 @@ class BiLSTM(nn.Module):
 
     def _word2charIndices(self, word):
         try:
-            w = self.src.vocab.itos[word]
+            w = self.src_vocab.itos[word]
         except IndexError:
-            w = self.src.vocab.itos[0]
+            w = self.src_vocab.itos[0]
         tokens = self.tokenize(w)
-        return torch.tensor([self.chars.vocab.stoi[i] for i in tokens])
+        return torch.tensor([self.char_vocab.stoi[i] for i in tokens])
 
     def encode(self, batches):
         w = torch.empty((len(batches), batches.size(1), self.hidden_size * 2), dtype=torch.float)
@@ -62,7 +63,7 @@ class BiLSTM(nn.Module):
         for wordIndex in sentence:
             chars = self._word2charIndices(wordIndex)
             result = F.pad(input=chars, pad=(0, max_char_size - len(chars)), mode='constant',
-                           value=self.chars.vocab.stoi[self.chars.pad_token])
+                           value=self.char_vocab.stoi['<pad>'])
             w[index] = result
             index += 1
         return w.cuda()

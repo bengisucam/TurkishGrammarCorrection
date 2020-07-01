@@ -30,7 +30,12 @@ def predict(seq2seq, bilstm, input_vocab, output_vocab, testcsv, savePath, max_l
 
 def predict_single(sentence, model, bilstm, input_vocab, output_vocab, device):
     predictor = Predictor(model, bilstm, input_vocab, output_vocab, device=device)
-    return predictor.predict(sentence.strip().split(' '))
+
+    return ' '.join(predictor.predict(sentence.strip().split(' ')))
+
+def predict_n(sentence, model, bilstm, input_vocab, output_vocab, device,n=5):
+    predictor = Predictor(model, bilstm, input_vocab, output_vocab, device=device)
+    return '\n'.join(predictor.predict_n(sentence.strip().split(' '),n=n))
 # checkpoint = Checkpoint.load(
 #     './Experiments/lstm_512_NLLL_Adam_0.001_15_bidir - True_attention - True_update_embd - True_variable - True_nlayers - 2_schRate - 5',
 #     'cpu')

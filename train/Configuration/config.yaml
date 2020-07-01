@@ -16,6 +16,9 @@ dataset:
     max_vocab: 500000
 
 model:
+
+    pre_trained_model: 'Experiments/ep3'
+
     char_embedding_size: 256
     bilstm_out_size: 256
     word_embedding_size: 300
