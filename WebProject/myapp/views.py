@@ -20,17 +20,18 @@ def output_text_view(request, context):
     print("in output_view")
     inp = context['input_text']
     print(context)
-    # print(output_text)
-    # request.GET.get(output_text)
+    # out = run([sys.executable, './test.py', inp],
+    #           shell=False, stdout=PIPE)
 
-    # inp = request.POST.get('out_text')
-    out = run([sys.executable, './test.py', inp],
+    out = run([sys.executable, '../train/train_char.py', inp],
               shell=False, stdout=PIPE)
+
     print(out.stdout)
     context = {'output_text': out.stdout}
 
     return render(request, 'myapp/forms.html', context)
 
+    return render(request, 'myapp/forms.html', context)
 
 def submit_text_view(request):
     print("in submit_view")
