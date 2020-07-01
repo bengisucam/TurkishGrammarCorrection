@@ -4,6 +4,8 @@ from django.http import HttpResponse
 import sys
 from subprocess import run, PIPE
 
+from pytz import unicode
+
 
 def home_view(request):
     print("in home_view")
@@ -25,9 +27,9 @@ def output_text_view(request, context):
 
     out = run([sys.executable, '../train/train_char.py', inp],
               shell=False, stdout=PIPE)
-
-    print(out.stdout)
-    context = {'output_text': out.stdout,'input_text': inp}
+    output = unicode(out.stdout, "utf-8")
+    print(output)
+    context = {'output_text': output,'input_text': inp}
 
     return render(request, 'myapp/forms.html', context)
 
