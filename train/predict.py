@@ -30,8 +30,17 @@ def predict(seq2seq, bilstm, input_vocab, output_vocab, testcsv, savePath, max_l
 
 def predict_single(sentence, model, bilstm, input_vocab, output_vocab, device):
     predictor = Predictor(model, bilstm, input_vocab, output_vocab, device=device)
+    sequence = sentence.strip().split(' ')
 
-    return ' '.join(predictor.predict(sentence.strip().split(' ')))
+    for tok in sequence:
+        print(f'Token :{tok} , prediction: {predictor.predict([tok,"<eos>"])}')
+        f = 'Yes' if tok in input_vocab.stoi else 'No'
+        ff = 'Yes' if tok in output_vocab.stoi else 'No'
+        if tok not in output_vocab.stoi:
+            tk = tok.split('ki')[0]
+            print(f'\t{tk} - {tk  in output_vocab.stoi} -- pred: {predictor.predict([tok])}')
+        print(f'Is in src voc? {f} - - Is in tgt vocab? {ff}')
+    return ' '.join(predictor.predict(sentence.strip().split()))
 
 def predict_n(sentence, model, bilstm, input_vocab, output_vocab, device,n=5):
     predictor = Predictor(model, bilstm, input_vocab, output_vocab, device=device)
