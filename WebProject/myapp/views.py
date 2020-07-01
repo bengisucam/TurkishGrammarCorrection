@@ -31,8 +31,6 @@ def output_text_view(request, context):
 
     return render(request, 'myapp/forms.html', context)
 
-    return render(request, 'myapp/forms.html', context)
-
 def submit_text_view(request):
     print("in submit_view")
     text = ''

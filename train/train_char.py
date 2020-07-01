@@ -246,5 +246,7 @@ else:
     input_vocab, output_vocab, char_vocab = load_vocabs(config)
     bilstm, seq2seq = load_models(config, input_vocab, output_vocab, char_vocab)
     while True:
-        sentence = input("Type something!")
+        # sentence = input("Type something!")
+        # sentence = " hey %s" % (sys.argv[1])
+        sentence = " hey %s" % (sys.argv[1])
         print(predict_single(sentence.lower(), seq2seq, bilstm, input_vocab, output_vocab, 'cuda'))
