@@ -73,7 +73,7 @@ class SupervisedTrainer(object):
 
         return loss.get_loss()
 
-    def _train_epoches(self, data, model, bilstm, n_epochs, start_epoch, start_step,
+    def _train_epoches(self, data,char_vocab, model, bilstm, n_epochs, start_epoch, start_step,
                        dev_data=None, test_data=None, teacher_forcing_ratio=0, deviceName='cuda'):
 
         print_loss_total = 0  # Reset every print_every
@@ -157,33 +157,35 @@ class SupervisedTrainer(object):
             logging.info(log_msg)
 
             if epoch % self.checkpoint_every == 0 or step == total_steps:
-                self._save(model, bilstm, epoch, step, data, test_data=test_data, deviceName=deviceName)
+                self._save(model, bilstm, epoch, step, data, test_data=test_data, deviceName=deviceName,char_vocab=char_vocab)
         return model
 
-    def _save(self, model, bilstm, epoch, step, data, test_data, deviceName):
+    def _save(self, model, bilstm, epoch, step, data,char_vocab, test_data, deviceName):
         path = Checkpoint(model=model,
                           bilstm=bilstm,
                           optimizer=self.optimizer,
                           epoch=epoch, step=step,
                           input_vocab=data.fields[seq2seq.src_field_name].vocab,
-                          output_vocab=data.fields[seq2seq.tgt_field_name].vocab).save(self.expt_dir,
+                          output_vocab=data.fields[seq2seq.tgt_field_name].vocab,
+                          char_vocab=char_vocab).save(self.expt_dir,
                                                                                        f'{self.save_name}\\{epoch}')
         if test_data is not None:
             test_loss, test_acc = self.evaluator.evaluate(model, bilstm, test_data, torch.device(deviceName))
             logging.info(f'Test Loss: {test_loss}, Test Accuracy: {test_acc}')
         return path
 
-    def _save_final(self, model, bilstm, epoch, step, data):
+    def _save_final(self, model, bilstm, epoch, step, data,char_vocab):
         path = Checkpoint(model=model,
                           bilstm=bilstm,
                           optimizer=self.optimizer,
                           epoch=epoch, step=step,
                           input_vocab=data.fields[seq2seq.src_field_name].vocab,
-                          output_vocab=data.fields[seq2seq.tgt_field_name].vocab).save(self.expt_dir,
+                          output_vocab=data.fields[seq2seq.tgt_field_name].vocab,
+                          char_vocab=char_vocab).save(self.expt_dir,
                                                                                        f'{self.save_name}\\Final')
         return path
 
-    def train(self, model, bilstm, data, num_epochs=5, dev_data=None, test_data=None,
+    def train(self, model, bilstm, data,char_vocab, num_epochs=5, dev_data=None, test_data=None,
               optimizer=None, teacher_forcing_ratio=0, deviceName='cuda', resume=False):
         """ Run training for a given model.
         Args:
@@ -225,10 +227,10 @@ class SupervisedTrainer(object):
 
         # print("- optimizer: %s, scheduler: %s" % (self.optimizer.optimizer, self.optimizer.scheduler))
 
-        self._train_epoches(data, model, bilstm, num_epochs,
+        self._train_epoches(data,char_vocab, model, bilstm, num_epochs,
                             start_epoch, step, dev_data=dev_data, test_data=test_data,
                             teacher_forcing_ratio=teacher_forcing_ratio, deviceName=deviceName)
-        path = self._save_final(model, bilstm, num_epochs, step, data)
+        path = self._save_final(model, bilstm, num_epochs, step, data,char_vocab)
         if test_data is not None:
             test_loss, test_acc = self.evaluator.evaluate(model, bilstm, test_data, torch.device(deviceName))
             logging.info(f'Test Loss: {test_loss}, Test Accuracy: {test_acc}')

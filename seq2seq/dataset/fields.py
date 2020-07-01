@@ -2,6 +2,7 @@ import logging
 
 import torchtext
 
+
 class SourceField(torchtext.data.Field):
     """ Wrapper class of torchtext.data.Field that forces batch_first and include_lengths to be True. """
 
@@ -16,6 +17,7 @@ class SourceField(torchtext.data.Field):
         kwargs['include_lengths'] = True
 
         super(SourceField, self).__init__(**kwargs)
+
 
 class TargetField(torchtext.data.Field):
     """ Wrapper class of torchtext.data.Field that forces batch_first to be True and prepend <sos> and append <eos> to sequences in preprocessing step.
