@@ -11,7 +11,7 @@ from torchtext.vocab import FastText
 
 import sys
 
-sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
+sys.path.append("C:/Users/bengi/PycharmProjects/TurkishGrammarCorrection/")
 from seq2seq.util.checkpoint import Checkpoint
 
 from train.predict import predict, predict_single
@@ -235,7 +235,7 @@ def train(configuration, seq2seq, bilstm, train_set, dev_set, test_set):
 
 
 logging.basicConfig(level=logging.INFO)
-config = parse_yaml('Configuration/config.yaml')
+config = parse_yaml('C:/Users/bengi/PycharmProjects/TurkishGrammarCorrection/train/Configuration/config.yaml')
 logging.info(config)
 train_only = False
 if train_only:
