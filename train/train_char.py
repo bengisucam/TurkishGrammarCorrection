@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 import os
 import time
@@ -11,7 +12,12 @@ from torchtext.vocab import FastText
 
 import sys
 
+from seq2seq.evaluator import Evaluator
+
 sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
+sys.path.append('C:/Users/furka/Desktop/TurkishGrammarCorrection')
+sys.path.append('C:/Users/furka/Desktop/TurkishGrammarCorrection/seq2seq')
+
 from seq2seq.util.checkpoint import Checkpoint
 
 from train.predict import predict, predict_single
@@ -81,7 +87,7 @@ def load_models(configuration, input_voc, output_voc, chars_vocab):
                          input_dropout_p=float(configuration['model']['dropout_input']),
                          use_attention=bool(configuration['model']['use_attention']),
                          bidirectional=bidirectional,
-                         eos_id=output_vocab.stoi['<eos>'], sos_id=output_vocab.stoi['<sos>'],
+                         eos_id=output_voc.stoi['<eos>'], sos_id=output_voc.stoi['<sos>'],
                          weights=decoder_word_vectors,
                          update_embedding=bool(configuration['dataset']['word_embeddings']['update']))
     seq2seq = Seq2seq(encoder, decoder)
@@ -177,15 +183,12 @@ def initialize_data(configuration):
     tgt.vocab.extend(src.vocab)
 
     chars.build_vocab(___, max_size=max_vocab_size)
-    with open(os.path.join('./', 'chars_vocab.pt'), 'wb') as fout:
-        dill.dump(chars.vocab, fout)
-    exit()
     logging.info(f'Train size: {len(train)}\nTest size: {len(test)}\nEval size: {len(dev)}')
     logging.info(f'- src vocab size: {len(src.vocab)}')
     logging.info(f'- tgt vocab size: {len(tgt.vocab)}')
     logging.info(f'- chars vocab size: {len(chars.vocab)}')
 
-    logging.info(chars.vocab.stoi)
+    # logging.info(chars.vocab.stoi)
 
     return src, tgt, chars, train, dev, test
 
@@ -199,7 +202,7 @@ def initialize_data(configuration):
 #     sentence = input("Type something!")
 #     print(predict_single(sentence,seq2seq,bilstm,input_vocab,output_vocab,'cuda'))
 
-def train(configuration, seq2seq, bilstm, train_set, dev_set, test_set):
+def train(configuration, seq2seq, bilstm, train_set, dev_set, test_set,char_vocab):
     device = configuration['model']['device']
     if not torch.cuda.is_available():
         device = 'cpu'
@@ -235,18 +238,41 @@ def train(configuration, seq2seq, bilstm, train_set, dev_set, test_set):
 
 
 logging.basicConfig(level=logging.INFO)
-config = parse_yaml('Configuration/config.yaml')
+config = parse_yaml('C:/Users/furka/Desktop/TurkishGrammarCorrection/train/Configuration/config.yaml')
 logging.info(config)
 train_only = False
 if train_only:
     src, tgt, chars, train_set, dev_set, test_set = initialize_data(config)
     bilstm, seq2seq = initialize_models(config, src, tgt, chars)
-    t = train(config, seq2seq, bilstm, train_set, dev_set, test_set)
+    t = train(config, seq2seq, bilstm, train_set, dev_set, test_set,chars)
 else:
+    src, tgt, chars, train_set, dev_set, test_set = initialize_data(config)
+    # input_vocab, output_vocab, char_vocab = load_vocabs(config)
+    bilstm, seq2seq = load_models(config, src.vocab, tgt.vocab, chars.vocab)
+    seq2seq.cuda()
+    bilstm.cuda()
+    weight = torch.ones(len(tgt.vocab)).to(torch.device('cuda'))
+    pad = tgt.vocab.stoi[tgt.pad_token]
+    loss = NLLLoss(weight, pad)
+    loss.cuda()
+    evaluator = Evaluator(loss=loss, batch_size=64)
+    d,a=evaluator.evaluate(seq2seq,bilstm,test_set,torch.device('cuda'))
+    print(d)
+    print(a)
+    # predict(seq2seq,bilstm,input_vocab,output_vocab,'../data/train/questions/test.csv',None)
+    exit()
+    while True:
+        sentence = input("Type something!")
+        # sentence = " hey %s" % (sys.argv[1])
+        print(predict_single(sentence.lower(), seq2seq, bilstm, input_vocab, output_vocab, 'cuda'))
+    sentence = sys.argv[1]
+    print(type(sentence))
+    print(sentence.encode(encoding='utf-8').decode('utf-8'))
+    print(type(sentence.encode(encoding='utf-8')))
+
+    print(sentence)
+    print(predict_single(sentence.lower(), seq2seq, bilstm, input_vocab, output_vocab, 'cuda'))
+def load_for_prediction():
     input_vocab, output_vocab, char_vocab = load_vocabs(config)
     bilstm, seq2seq = load_models(config, input_vocab, output_vocab, char_vocab)
-    while True:
-        # sentence = input("Type something!")
-        # sentence = " hey %s" % (sys.argv[1])
-        sentence = " hey %s" % (sys.argv[1])
-        print(predict_single(sentence.lower(), seq2seq, bilstm, input_vocab, output_vocab, 'cuda'))
+    return seq2seq, bilstm, input_vocab, output_vocab

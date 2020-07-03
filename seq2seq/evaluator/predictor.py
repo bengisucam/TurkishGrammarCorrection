@@ -1,5 +1,6 @@
 import torch
 from torch.autograd import Variable
+# -*- coding: utf-8 -*-
 
 
 class Predictor(object):
