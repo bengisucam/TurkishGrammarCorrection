@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <meta charset="UTF-8">
+        <title>TurkishGrammarCorrection</title>
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <h1 style="color:red;" >Türkçe Gramer Düzenleyici</h1>
+            <p style="color:red;"> Bu uygulama ile 'de/da' ve 'ki' bağlacları, soru ekleri ve büyük/küçük harf yazımızı kontrol edin!</p>
+            <a style="color:black;"id="link-to-form" href="{% url 'form' %}">Başla!</a>
+            <!--    <a href="form">Go to</a>-->
+        </div>
+    </body>
+
+
+</html>

@@ -1,8 +1,9 @@
 #%% SEQ2SEQ CONFIG
 
-
+zemberek_path: 'C:/Users/furka/Desktop/TurkishGrammarCorrection/data/zemberek/zemberek-full.jar'
+zemberek_normalizer_path: 'C:/Users/furka/Desktop/TurkishGrammarCorrection/data/zemberek'
 dataset:
-    path: '../data/train/'
+    path: '../data/train/questions'
     train: 'train.csv'
     dev: 'dev.csv'
     test: 'test.csv'
@@ -12,18 +13,21 @@ dataset:
         update: False
 
 
-    max_length: 16
-    max_vocab: 200000
+    max_length: 14
+    max_vocab: 500000
 
 model:
-    char_embedding_size: 512
-    bilstm_out_size: 512
+
+    pre_trained_model: 'C:/Users/furka/Desktop/TurkishGrammarCorrection/train/Experiments/ep3'
+
+    char_embedding_size: 256
+    bilstm_out_size: 256
     word_embedding_size: 300
 
-    encoder_lstm_out_decoder_in: 512
+    encoder_lstm_out_decoder_in: 256
     bidirectional: True
 
-    device: 'cuda'
+    device: 'cpu'
     # 'lstm' or 'gru'
     rnn_cell: 'lstm'
 
@@ -39,18 +43,18 @@ model:
 
     use_attention: True
     n_layers: 2
-    dropout_input: 0.1
-    dropout_output: 0.1
+    dropout_input: 0.25
+    dropout_output: 0.25
 
     variable_lengths: True
 
 train:
-    lr: 0.0012
+    lr: 0.0013
     teacher_forcing_ratio: 1.25
-    batch_size: 32
+    batch_size: 64
     epoch: 10
     early_stop_threshold: 2
-    print_every: 250
+    print_every: 500
     checkpoint_every: 1
 
 save_dir: './Experiments'

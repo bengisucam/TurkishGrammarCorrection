@@ -1,0 +1,120 @@
+#form-wrapper{
+    /*background-color: #0f121f;*/
+    background-image: linear-gradient(to bottom left, rgba(235, 243, 37, 0.37), rgba(145, 127, 23, 0.2)),
+        url('/static/img/paper.jpg');
+    background-size: cover;
+    opacity: 100%;
+    /*background: linear-gradient(to bottom left, rgb(97, 29, 155), rgb(20, 0, 145));*/
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: initial;
+    justify-content: center;
+    align-items: flex-end;
+    position: fixed;
+    left: 0;
+    top: 0;
+
+}
+
+.form{
+    padding: 20px 50px;
+    bottom: 10em;
+    align-self: center;
+    border-radius: 20px;
+    align-items: initial;
+
+}
+
+
+
+.form textarea{
+    resize: none; /* Remove this if you want the user to resize the textarea */
+    margin: 200px 40px 10px 10px;
+    padding: 5px;
+    border-radius: 5px;
+    /*display:block;*/
+
+
+}
+
+.form label {
+    /*display:inherit;*/
+    /*padding-left:100px;*/
+	/*padding-right:100px;*/
+    margin: 100px ;
+    position: absolute;
+    font-family: "Roboto";
+}
+
+
+.form input[type="submit"]{
+    font-size: 1.2em;
+    border-radius: 5px;
+    color: mintcream;
+    background: #08152e;
+    text-align: center;
+    align-self: flex-start;
+    width: 100px;
+}
+
+body {
+	background:#333 url(https://static.tumblr.com/maopbtg/a5emgtoju/inflicted.png) repeat;
+}
+
+#paper {
+	color:#FFF;
+	font-size:20px;
+}
+
+#input_text, #output_text {
+    resize: none;
+	width:500px;
+	background-color:#FFF;
+	color:#222;
+	font-family:Courier, monospace;
+	font-weight:normal;
+	font-size:24px;
+	line-height:40px;
+	padding-left:100px;
+	/*padding-right:100px;*/
+	/*padding-top:45px;*/
+	/*padding-bottom:34px;*/
+	background-image:url(https://static.tumblr.com/maopbtg/E9Bmgtoht/lines.png), url(https://static.tumblr.com/maopbtg/nBUmgtogx/paper.png);
+	background-repeat:repeat-y, repeat;
+	-webkit-border-radius:12px;
+	border-radius:12px;
+	-webkit-box-shadow: 0px 2px 14px #000;
+	box-shadow: 0px 2px 14px #000;
+	border-top:1px solid #FFF;
+	border-bottom:1px solid #FFF;
+}
+
+
+#button{
+    display: block;
+    margin: 0 auto;
+    position: relative;
+    right: 300px;
+}
+
+
+
+
+#link-wrapper {
+    text-align: right;
+}
+
+#link-wrapper a, p{
+    font-size: 2em;
+    font-family: "Roboto";
+    color: #fff;
+    top: 20%;
+    left: 80%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+}
+#link-to-form a,p{
+        color: #319c27;
+
+}

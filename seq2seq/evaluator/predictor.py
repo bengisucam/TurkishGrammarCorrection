@@ -1,5 +1,6 @@
 import torch
 from torch.autograd import Variable
+# -*- coding: utf-8 -*-
 
 
 class Predictor(object):
@@ -35,11 +36,10 @@ class Predictor(object):
         else:
             src_id_seq = src_id_seq.cpu()
 
-        char_word_embeds_source = self.bilstm(src_id_seq)
         with torch.no_grad():
             softmax_list, _, other = self.model(
                 src_id_seq, [len(src_seq)],
-                char_word_embeds=char_word_embeds_source,
+                bilstm=self.bilstm,
                 teacher_forcing_ratio=0)
 
         return other
@@ -57,7 +57,6 @@ class Predictor(object):
         other = self.get_decoder_features(src_seq)
 
         length = other['length'][0]
-
         tgt_id_seq = [other['sequence'][di][0].data[0] for di in range(length)]
         tgt_seq = [self.tgt_vocab.itos[tok] for tok in tgt_id_seq]
         return tgt_seq
@@ -78,9 +77,9 @@ class Predictor(object):
 
         result = []
         for x in range(0, int(n)):
-            length = other['topk_length'][0][x]
-            tgt_id_seq = [other['topk_sequence'][di][0, x, 0].data[0] for di in range(length)]
+            length = other['length'][x]
+            tgt_id_seq = [other['sequence'][di][0, x, 0].data[0] for di in range(length)]
             tgt_seq = [self.tgt_vocab.itos[tok] for tok in tgt_id_seq]
-            result.append(tgt_seq)
+            result.append(' '.join(tgt_seq))
 
         return result
