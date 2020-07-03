@@ -247,30 +247,10 @@ if train_only:
     t = train(config, seq2seq, bilstm, train_set, dev_set, test_set,chars)
 else:
     src, tgt, chars, train_set, dev_set, test_set = initialize_data(config)
-    # input_vocab, output_vocab, char_vocab = load_vocabs(config)
+    input_vocab, output_vocab, char_vocab = load_vocabs(config)
     bilstm, seq2seq = load_models(config, src.vocab, tgt.vocab, chars.vocab)
-    seq2seq.cuda()
-    bilstm.cuda()
-    weight = torch.ones(len(tgt.vocab)).to(torch.device('cuda'))
-    pad = tgt.vocab.stoi[tgt.pad_token]
-    loss = NLLLoss(weight, pad)
-    loss.cuda()
-    evaluator = Evaluator(loss=loss, batch_size=64)
-    d,a=evaluator.evaluate(seq2seq,bilstm,test_set,torch.device('cuda'))
-    print(d)
-    print(a)
     # predict(seq2seq,bilstm,input_vocab,output_vocab,'../data/train/questions/test.csv',None)
-    exit()
-    while True:
-        sentence = input("Type something!")
-        # sentence = " hey %s" % (sys.argv[1])
-        print(predict_single(sentence.lower(), seq2seq, bilstm, input_vocab, output_vocab, 'cuda'))
     sentence = sys.argv[1]
-    print(type(sentence))
-    print(sentence.encode(encoding='utf-8').decode('utf-8'))
-    print(type(sentence.encode(encoding='utf-8')))
-
-    print(sentence)
     print(predict_single(sentence.lower(), seq2seq, bilstm, input_vocab, output_vocab, 'cuda'))
 def load_for_prediction():
     input_vocab, output_vocab, char_vocab = load_vocabs(config)
