@@ -12,7 +12,8 @@ from torchtext.vocab import FastText
 
 import sys
 
-from seq2seq.evaluator import Evaluator
+from seq2seq.evaluator import Predictor
+from zemberek_python.base import ZemberekPython
 
 sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
 sys.path.append('C:/Users/furka/Desktop/TurkishGrammarCorrection')
@@ -48,11 +49,11 @@ def load_vocabs(configuration):
 
 
 def load_models(configuration, input_voc, output_voc, chars_vocab):
-    max_length = config['dataset']['max_length']
+    max_length = configuration['dataset']['max_length']
     device = configuration['model']['device']
     if not torch.cuda.is_available():
         device = 'cpu'
-    path = config['model']['pre_trained_model']
+    path = configuration['model']['pre_trained_model']
     bidirectional = bool(configuration['model']['bidirectional'])
 
     hidden_size = configuration['model']['encoder_lstm_out_decoder_in']
@@ -60,7 +61,7 @@ def load_models(configuration, input_voc, output_voc, chars_vocab):
 
     bilstm = BiLSTM(bilstm_hidden_size, configuration['model']['char_embedding_size'],
                     int(configuration['model']['n_layers']), chars_vocab,
-                    input_voc)  # src
+                    input_voc, device=torch.device(device))  # src
 
     bilstm_state_dict, seq2seq_state_dict = Checkpoint.load_model_states(path, device)
     encoder_word_vectors = seq2seq_state_dict['encoder.word_embedding.weight']
@@ -89,7 +90,8 @@ def load_models(configuration, input_voc, output_voc, chars_vocab):
                          bidirectional=bidirectional,
                          eos_id=output_voc.stoi['<eos>'], sos_id=output_voc.stoi['<sos>'],
                          weights=decoder_word_vectors,
-                         update_embedding=bool(configuration['dataset']['word_embeddings']['update']))
+                         update_embedding=bool(configuration['dataset']['word_embeddings']['update'])
+                         , device=torch.device(device))
     seq2seq = Seq2seq(encoder, decoder)
 
     seq2seq.load_state_dict(seq2seq_state_dict)
@@ -202,7 +204,7 @@ def initialize_data(configuration):
 #     sentence = input("Type something!")
 #     print(predict_single(sentence,seq2seq,bilstm,input_vocab,output_vocab,'cuda'))
 
-def train(configuration, seq2seq, bilstm, train_set, dev_set, test_set,char_vocab):
+def train(configuration, seq2seq, bilstm, src, tgt, train_set, dev_set, test_set, char_vocab):
     device = configuration['model']['device']
     if not torch.cuda.is_available():
         device = 'cpu'
@@ -244,15 +246,36 @@ train_only = False
 if train_only:
     src, tgt, chars, train_set, dev_set, test_set = initialize_data(config)
     bilstm, seq2seq = initialize_models(config, src, tgt, chars)
-    t = train(config, seq2seq, bilstm, train_set, dev_set, test_set,chars)
+    t = train(config, seq2seq, bilstm, train_set, dev_set, test_set, chars)
 else:
     src, tgt, chars, train_set, dev_set, test_set = initialize_data(config)
     input_vocab, output_vocab, char_vocab = load_vocabs(config)
     bilstm, seq2seq = load_models(config, src.vocab, tgt.vocab, chars.vocab)
-    # predict(seq2seq,bilstm,input_vocab,output_vocab,'../data/train/questions/test.csv',None)
-    sentence = sys.argv[1]
-    print(predict_single(sentence.lower(), seq2seq, bilstm, input_vocab, output_vocab, 'cuda'))
-def load_for_prediction():
+    while True:
+        sentence = input()
+    # predict(seq2seq, bilstm, input_vocab, output_vocab, '../data/train/questions/test.csv', None)
+    # sentence = sys.argv[1]
+    # print(sentence)
+        print(predict_single(sentence.lower(), seq2seq, bilstm, input_vocab, output_vocab, 'cuda'))
+
+
+def load_for_prediction(config):
     input_vocab, output_vocab, char_vocab = load_vocabs(config)
     bilstm, seq2seq = load_models(config, input_vocab, output_vocab, char_vocab)
     return seq2seq, bilstm, input_vocab, output_vocab
+
+
+def create_predictor(config_path):
+    torch.cuda.empty_cache()
+    config = parse_yaml(config_path)
+    model, bilstm, input_vocab, output_vocab = load_for_prediction(config)
+    predictor = Predictor(model, bilstm, input_vocab, output_vocab, device='cpu')
+    zemberek = ZemberekPython(config['zemberek_path'])
+
+    return zemberek, predictor
+# config = parse_yaml('C:/Users/furka/Desktop/TurkishGrammarCorrection/train/Configuration/config.yaml')
+# #
+# torch.cuda.empty_cache()
+# model, bilstm, input_vocab, output_vocab=load_for_prediction(config)
+# predictor = Predictor(model, bilstm, input_vocab, output_vocab, device='cpu')
+# predictor.predict('i am a little bitch'.split())

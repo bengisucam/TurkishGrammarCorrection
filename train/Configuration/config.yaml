@@ -1,6 +1,6 @@
 #%% SEQ2SEQ CONFIG
 
-
+zemberek_path: '../data/zemberek/zemberek-full.jar'
 dataset:
     path: '../data/train/questions'
     train: 'train.csv'
@@ -26,7 +26,7 @@ model:
     encoder_lstm_out_decoder_in: 256
     bidirectional: True
 
-    device: 'cuda'
+    device: 'cpu'
     # 'lstm' or 'gru'
     rnn_cell: 'lstm'
 

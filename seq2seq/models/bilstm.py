@@ -5,8 +5,10 @@ import torch.nn.functional as F
 
 
 class BiLSTM(nn.Module):
-    def __init__(self, hidden_size=64, embed_size=64, layers=1, char_vocab=None, src_vocab=None, lstm_dropout=0.25):
+    def __init__(self, hidden_size=64, embed_size=64, layers=1, char_vocab=None, src_vocab=None, lstm_dropout=0.25,device=torch.device('cpu')):
         super(BiLSTM, self).__init__()
+
+        self.device=device
 
         self.char_vocab = char_vocab
         self.src_vocab = src_vocab
@@ -29,7 +31,7 @@ class BiLSTM(nn.Module):
 
     def forward(self, input):
 
-        char_embeds = self.char_embedding(input)
+        char_embeds = self.char_embedding(input.to(self.device))
         output, _ = self.rnn(char_embeds)
 
         output = output[:, output.size(1) - 1]
@@ -51,7 +53,7 @@ class BiLSTM(nn.Module):
             char_indices = self._sentencetensor2charIndices(sentence_tensor)
             embeds = self.forward(char_indices)
             w[i] = embeds
-        return w.cuda()
+        return w.to(self.device)
 
     def __call__(self, input_variables):
         return self.encode(input_variables)
@@ -66,4 +68,5 @@ class BiLSTM(nn.Module):
                            value=self.char_vocab.stoi['<pad>'])
             w[index] = result
             index += 1
-        return w.cuda()
+        return w.to(self.device)
+

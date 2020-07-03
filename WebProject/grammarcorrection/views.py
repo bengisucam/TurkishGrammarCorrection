@@ -6,16 +6,18 @@ from subprocess import run, PIPE
 
 from pytz import unicode
 
+from .apps import MyappConfig
+
 
 def home_view(request):
     print("in home_view")
-    return render(request, "myapp/base.html")
+    return render(request, "grammarcorrection/base.html")
     # return HttpResponse("<h1>Hello<h1>")
 
 
 def form_view(request):
     print("in form_view")
-    return render(request, "myapp/forms.html")
+    return render(request, "grammarcorrection/forms.html")
 
 
 def output_text_view(request, context):
@@ -24,14 +26,14 @@ def output_text_view(request, context):
     print(context)
     # out = run([sys.executable, './test.py', inp],
     #           shell=False, stdout=PIPE)
-
-    out = run([sys.executable, '../train/train_char.py', inp],
-              shell=False, stdout=PIPE)
-    output = unicode(out.stdout, "utf-8")
-    print(output)
+    output=MyappConfig.predictor.predict(inp.strip().split())
+    # out = run([sys.executable, '../train/train_funcs.py', inp],
+    #           shell=False, stdout=PIPE)
+    # output = unicode(out.stdout, "utf-8")
+    # print(output)
     context = {'output_text': output,'input_text': inp}
 
-    return render(request, 'myapp/forms.html', context)
+    return render(request, 'grammarcorrection/forms.html', context)
 
 def submit_text_view(request):
     print("in submit_view")

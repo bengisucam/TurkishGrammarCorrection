@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # own
-    'myapp.apps.MyappConfig'
+    'grammarcorrection.apps.MyappConfig'
 ]
 
 MIDDLEWARE = [
@@ -123,7 +123,7 @@ USE_TZ = True
 
 STATICFILES_DIRS = [
     # os.path.join(BASE_DIR, 'static'),
-    'WebProject/myapp/static',  # Here you tell django to look for a folder
+    'WebProject/grammarcorrection/static',  # Here you tell django to look for a folder
 ]
 
 STATIC_URL = '/static/'

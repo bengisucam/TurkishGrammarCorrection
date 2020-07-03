@@ -61,7 +61,7 @@ class DecoderRNN(BaseRNN):
     KEY_SEQUENCE = 'sequence'
 
     def __init__(self, vocab_size, max_len, hidden_size, embedding_total_size,
-                 sos_id, eos_id,
+                 sos_id, eos_id,device=torch.device('cpu'),
                  n_layers=1, rnn_cell='gru', bidirectional=False,
                  input_dropout_p=0, dropout_p=0, use_attention=False,embedder=None,weights=None,update_embedding=True):
         super(DecoderRNN, self).__init__(vocab_size, max_len, hidden_size,
@@ -88,7 +88,7 @@ class DecoderRNN(BaseRNN):
             self.attention = Attention(self.hidden_size)
 
         self.out = nn.Linear(self.hidden_size, self.output_size)
-
+        self.device=device
 
     def forward_step(self, input_var, hidden, encoder_outputs, function,char_embedder):
 
@@ -96,7 +96,7 @@ class DecoderRNN(BaseRNN):
         output_size = input_var.size(1)
 
         char_embeds=char_embedder(input_var)
-        word_embeds = self.word_embedding(input_var)
+        word_embeds = self.word_embedding(input_var.to(self.device))
 
         embeddings = torch.cat([char_embeds, word_embeds], dim=2)
         embeddings = self.input_dropout(embeddings)
