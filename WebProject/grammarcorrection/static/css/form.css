@@ -44,7 +44,7 @@
 	/*padding-right:100px;*/
     margin: 100px ;
     position: absolute;
-    font-family: "Gill Sans MT";
+    font-family: "Roboto";
 }
 
 
@@ -106,11 +106,15 @@ body {
 }
 
 #link-wrapper a, p{
-    font-size: 1em;
-    font-family: "Gill Sans MT";
+    font-size: 2em;
+    font-family: "Roboto";
     color: #fff;
     top: 20%;
     left: 80%;
     margin-right: -50%;
     transform: translate(-50%, -50%)
+}
+#link-to-form a,p{
+        color: #319c27;
+
 }

@@ -192,15 +192,15 @@ class ZemberekPython(object):
         self.tokenizer = tokenizer
         return self
 
-    def CreateNormalizer(self):
+    def CreateNormalizer(self,normalizer_data_root):
         TurkishSentenceNormalizer: JClass = JClass(
             'zemberek.normalization.TurkishSentenceNormalizer'
         )
         Paths: JClass = JClass('java.nio.file.Paths')
 
-        self.normalizer = TurkishSentenceNormalizer(self.morphology, Paths.get(join('..', 'data', 'normalization')),
+        self.normalizer = TurkishSentenceNormalizer(self.morphology, Paths.get(join(normalizer_data_root, 'normalization')),
                                                     Paths.get(
-                                                        join('..', 'data', 'lm', 'lm.2gram.slm')
+                                                        join(normalizer_data_root, 'lm', 'lm.2gram.slm')
                                                     )
                                                     )
         return self

@@ -28,9 +28,10 @@ def predict(seq2seq, bilstm, input_vocab, output_vocab, testcsv, savePath, max_l
         logging.info("- saved predictions to {}".format(savePath + "/predictions.txt"))
 
 
-def predict_single(sentence, model, bilstm, input_vocab, output_vocab, device):
+def predict_single(sentence, model, bilstm, input_vocab, output_vocab,zemberek, device):
     predictor = Predictor(model, bilstm, input_vocab, output_vocab, device=device)
-    sequence = sentence.strip().split(' ')
+    sequence = zemberek.Tokenize(sentence)
+    print(sequence)
 
     for tok in sequence:
         print(f'Token :{tok} , prediction: {predictor.predict([tok,"<eos>"])}')

@@ -21,7 +21,6 @@ sys.path.append('C:/Users/furka/Desktop/TurkishGrammarCorrection/seq2seq')
 
 from seq2seq.util.checkpoint import Checkpoint
 
-from train.predict import predict, predict_single
 
 from seq2seq.models.bilstm import BiLSTM
 from seq2seq.dataset import SourceField, TargetField
@@ -239,24 +238,24 @@ def train(configuration, seq2seq, bilstm, src, tgt, train_set, dev_set, test_set
                    teacher_forcing_ratio=configuration['train']['teacher_forcing_ratio'], deviceName=device)
 
 
-logging.basicConfig(level=logging.INFO)
-config = parse_yaml('C:/Users/furka/Desktop/TurkishGrammarCorrection/train/Configuration/config.yaml')
-logging.info(config)
-train_only = False
-if train_only:
-    src, tgt, chars, train_set, dev_set, test_set = initialize_data(config)
-    bilstm, seq2seq = initialize_models(config, src, tgt, chars)
-    t = train(config, seq2seq, bilstm, train_set, dev_set, test_set, chars)
-else:
-    src, tgt, chars, train_set, dev_set, test_set = initialize_data(config)
-    input_vocab, output_vocab, char_vocab = load_vocabs(config)
-    bilstm, seq2seq = load_models(config, src.vocab, tgt.vocab, chars.vocab)
-    while True:
-        sentence = input()
-    # predict(seq2seq, bilstm, input_vocab, output_vocab, '../data/train/questions/test.csv', None)
-    # sentence = sys.argv[1]
-    # print(sentence)
-        print(predict_single(sentence.lower(), seq2seq, bilstm, input_vocab, output_vocab, 'cuda'))
+# logging.basicConfig(level=logging.INFO)
+# config = parse_yaml('C:/Users/furka/Desktop/TurkishGrammarCorrection/train/Configuration/config.yaml')
+# logging.info(config)
+# train_only = False
+# if train_only:
+#     src, tgt, chars, train_set, dev_set, test_set = initialize_data(config)
+#     bilstm, seq2seq = initialize_models(config, src, tgt, chars)
+#     t = train(config, seq2seq, bilstm, train_set, dev_set, test_set, chars)
+# else:
+#     src, tgt, chars, train_set, dev_set, test_set = initialize_data(config)
+#     input_vocab, output_vocab, char_vocab = load_vocabs(config)
+#     bilstm, seq2seq = load_models(config, src.vocab, tgt.vocab, chars.vocab)
+#     while True:
+#         sentence = input()
+#     # predict(seq2seq, bilstm, input_vocab, output_vocab, '../data/train/questions/test.csv', None)
+#     # sentence = sys.argv[1]
+#     # print(sentence)
+#         print(predict_single(sentence.lower(), seq2seq, bilstm, input_vocab, output_vocab, 'cuda'))
 
 
 def load_for_prediction(config):
@@ -268,10 +267,13 @@ def load_for_prediction(config):
 def create_predictor(config_path):
     torch.cuda.empty_cache()
     config = parse_yaml(config_path)
+
     model, bilstm, input_vocab, output_vocab = load_for_prediction(config)
     predictor = Predictor(model, bilstm, input_vocab, output_vocab, device='cpu')
-    zemberek = ZemberekPython(config['zemberek_path'])
 
+    zemberek = ZemberekPython(config['zemberek_path'])
+    zemberek = zemberek.startJVM().CreateTokenizer().CreateTurkishMorphology().CreateSpellChecker().CreateNormalizer(config['zemberek_normalizer_path'])
+    print('creation successfull')
     return zemberek, predictor
 # config = parse_yaml('C:/Users/furka/Desktop/TurkishGrammarCorrection/train/Configuration/config.yaml')
 # #
