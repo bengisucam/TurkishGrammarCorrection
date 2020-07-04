@@ -13,7 +13,7 @@
           {% csrf_token %}
 
         <div id="link-wrapper">
-            <p><a style="color:red;" id="link-to-form" href="{% url 'home-page' %}">Anasayfa</a></p>
+            <p><a id="link-to-form" href="{% url 'home-page' %}">Anasayfa</a></p>
         </div>
 
           <textarea placeholder="Buraya yazın..." id="input_text" name="in_text" rows="5" cols="50" style="overflow-y:scroll;">{{ input_text }}</textarea>
