@@ -1,7 +1,9 @@
 #%% SEQ2SEQ CONFIG
 
-zemberek_path: 'C:/Users/furka/Desktop/TurkishGrammarCorrection/data/zemberek/zemberek-full.jar'
-zemberek_normalizer_path: 'C:/Users/furka/Desktop/TurkishGrammarCorrection/data/zemberek'
+#zemberek_path: 'C:/Users/furka/Desktop/TurkishGrammarCorrection/data/zemberek/zemberek-full.jar'
+zemberek_path: 'C:/Users/bengi/PycharmProjects/TurkishGrammarCorrection/data/zemberek/zemberek-full.jar'
+#zemberek_normalizer_path: 'C:/Users/furka/Desktop/TurkishGrammarCorrection/data/zemberek'
+zemberek_normalizer_path: 'C:/Users/bengi/PycharmProjects/TurkishGrammarCorrection/data/zemberek'
 dataset:
     path: '../data/train/questions'
     train: 'train.csv'
@@ -18,7 +20,8 @@ dataset:
 
 model:
 
-    pre_trained_model: 'C:/Users/furka/Desktop/TurkishGrammarCorrection/train/Experiments/ep3'
+#    pre_trained_model: 'C:/Users/furka/Desktop/TurkishGrammarCorrection/train/Experiments/ep3'
+    pre_trained_model: 'C:/Users/bengi/PycharmProjects/TurkishGrammarCorrection/train/Experiments/ep3'
 
     char_embedding_size: 256
     bilstm_out_size: 256
