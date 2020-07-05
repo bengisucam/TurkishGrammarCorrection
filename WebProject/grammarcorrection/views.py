@@ -19,7 +19,7 @@ def output_text_view(request, context):
         output = 'Lütfen geçerli bir giriş yapın!'
     else:
         token_analysis = MyappConfig.zemberek.Tokenize(MyappConfig.zemberek.NormalizeSentence(inp.strip()))
-        tokList = [str(tok.content).lower() for tok in token_analysis]
+        tokList = [str(tok.content).lower() for tok in token_analysis]+['<eos>']
         print(tokList)
         output=MyappConfig.predictor.predict(tokList)
         token_analysis = MyappConfig.zemberek.Tokenize(' '.join(output[:-1]).strip())
