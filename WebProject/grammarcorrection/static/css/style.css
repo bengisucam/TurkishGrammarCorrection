@@ -28,8 +28,8 @@ h1{
     font-size: 6em;
     text-align: center;
     font-weight: 600;
-    font-family: "Brush Script MT", cursive;
-    /*font-family: "Roboto", serif;*/
+    /*font-family: 'Montserrat Alternates', sans-serif;*/
+    font-family: "Roboto", serif;
     text-shadow: 4px 4px cornsilk;
     color: black;
     width: 70%;
@@ -43,10 +43,10 @@ h3{
     font-size: 2em;
     text-align: center;
     font-weight: 600;
-    font-family: 'Montserrat Alternates', sans-serif;
-    /*font-family: "Roboto", serif;*/
+    /*font-family: 'Montserrat Alternates', sans-serif;*/
+    font-family: "Roboto", serif;
 
-    text-shadow: 4px 4px ;
+    text-shadow: 4px 4px #ff0000;
     color: mintcream;
     width: 70%;
     position: absolute;
@@ -74,7 +74,9 @@ a, a:hover, a:visited{
 p {
     font-size: 1.5em;
     font-weight: 500;
-    font-family: "Gill Sans MT";
+      font-family: "Roboto", serif;
+
+    color: #319c27;
     /*text-align: center;*/
     position: absolute;
     top: 50%;
