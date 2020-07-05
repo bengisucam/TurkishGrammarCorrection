@@ -16,10 +16,8 @@ from seq2seq.evaluator import Predictor
 from zemberek_python.base import ZemberekPython
 
 sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
-# sys.path.append('C:/Users/furka/Desktop/TurkishGrammarCorrection')
-# sys.path.append('C:/Users/furka/Desktop/TurkishGrammarCorrection/seq2seq')
-sys.path.append('C:/Users/bengi/PycharmProjects/TurkishGrammarCorrection')
-sys.path.append('C:/Users/bengi/PycharmProjects/TurkishGrammarCorrection/seq2seq')
+sys.path.append('C:/Users/furka/Desktop/TurkishGrammarCorrection')
+sys.path.append('C:/Users/furka/Desktop/TurkishGrammarCorrection/seq2seq')
 
 from seq2seq.util.checkpoint import Checkpoint
 
