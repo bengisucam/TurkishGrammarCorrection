@@ -1,4 +1,5 @@
 import logging
+import sys
 import time
 
 import torch
@@ -6,6 +7,9 @@ import torchtext
 import yaml
 from torch.optim.lr_scheduler import StepLR
 from torchtext.vocab import FastText
+
+
+sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
 
 from seq2seq.dataset import TargetField, SourceField
 from seq2seq.loss import Perplexity, NLLLoss
@@ -116,7 +120,7 @@ def train(config_file, save_dir, save_name):
         torch.cuda.empty_cache()
     logging.info("- emptying cuda cache")
     time.sleep(5)
-    predict(seq2seq, input_vocab, output_vocab, config['dataset']['test_path'], save_dir + "/" + save_name,
-            max_len=max_length, n=500)
+    # predict(seq2seq, input_vocab, output_vocab, config['dataset']['test_path'], save_dir + "/" + save_name,
+    #         max_len=max_length, n=500)
     logging.info("- saved predictions to {}".format(save_dir + "/" + save_name))
 
