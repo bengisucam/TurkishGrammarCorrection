@@ -2,7 +2,7 @@
 
 
 dataset:
-    path: '../data/train/'
+    path: '../data/trainn/'
     train: 'test.csv'
     dev: 'dev.csv'
     test: 'test.csv'
@@ -16,7 +16,7 @@ dataset:
     max_vocab: 500000
 
 model:
-    hidden_size: 300
+    hidden_size: 256
     bidirectional: True
 
     device: 'cuda'
