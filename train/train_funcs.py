@@ -12,7 +12,7 @@ from torchtext.vocab import FastText
 
 import sys
 
-from seq2seq.evaluator import Predictor
+from seq2seq.evaluator import Predictor, Evaluator
 from zemberek_python.base import ZemberekPython
 
 sys.path.append("/content/drive/My Drive/TurkishGrammarCorrection/")
@@ -20,7 +20,6 @@ sys.path.append('C:/Users/furka/Desktop/TurkishGrammarCorrection')
 sys.path.append('C:/Users/furka/Desktop/TurkishGrammarCorrection/seq2seq')
 
 from seq2seq.util.checkpoint import Checkpoint
-
 
 from seq2seq.models.bilstm import BiLSTM
 from seq2seq.dataset import SourceField, TargetField
@@ -194,15 +193,6 @@ def initialize_data(configuration):
     return src, tgt, chars, train, dev, test
 
 
-# checkpoint=Checkpoint.load('Experiments','cuda',seq2seq,bilstm)
-# seq2seq=checkpoint.model
-# bilstm=checkpoint.bilstm
-# output_vocab=checkpoint.output_vocab
-# input_vocab=checkpoint.input_vocab
-# while True:
-#     sentence = input("Type something!")
-#     print(predict_single(sentence,seq2seq,bilstm,input_vocab,output_vocab,'cuda'))
-
 def train(configuration, seq2seq, bilstm, src, tgt, train_set, dev_set, test_set, char_vocab):
     device = configuration['model']['device']
     if not torch.cuda.is_available():
@@ -272,12 +262,69 @@ def create_predictor(config_path):
     predictor = Predictor(model, bilstm, input_vocab, output_vocab, device='cpu')
 
     zemberek = ZemberekPython(config['zemberek_path'])
-    zemberek = zemberek.startJVM().CreateTokenizer().CreateTurkishMorphology().CreateSpellChecker().CreateNormalizer(config['zemberek_normalizer_path'])
+    zemberek = zemberek.startJVM().CreateTokenizer().CreateTurkishMorphology().CreateSpellChecker().CreateNormalizer(
+        config['zemberek_normalizer_path'])
     print('creation successfull')
     return zemberek, predictor
-# config = parse_yaml('C:/Users/furka/Desktop/TurkishGrammarCorrection/train/Configuration/config.yaml')
-# #
-# torch.cuda.empty_cache()
-# model, bilstm, input_vocab, output_vocab=load_for_prediction(config)
-# predictor = Predictor(model, bilstm, input_vocab, output_vocab, device='cpu')
-# predictor.predict('i am a little bitch'.split())
+
+
+config = parse_yaml('C:/Users/furka/Desktop/TurkishGrammarCorrection/train/Configuration/config.yaml')
+
+src = SourceField()
+tgt = TargetField()
+chars = SourceField(tokenize=tokenize)
+tv_datafields = [('id', None), ("src", src),
+                 ('tgt', tgt)]  # we won't be needing the id, so we pass in None as the field
+
+t, dev, test = torchtext.data.TabularDataset.splits(
+    path=config['dataset']['path'], train=config['dataset']['train'],
+    validation=config['dataset']['dev'], test=config['dataset']['test'], format='csv',
+    skip_header=True,
+    fields=tv_datafields)
+torch.cuda.empty_cache()
+model, bilstm, input_vocab, output_vocab = load_for_prediction(config)
+predictor = Predictor(model, bilstm, input_vocab, output_vocab, device='cuda')
+
+import pandas as pd
+
+df = pd.read_csv(os.path.join(config['dataset']['path'], config['dataset']['test']), index_col='id')
+a = 0
+len_output_total = 0
+len_tgt_total = 0
+correct_total = 0
+
+
+def correctnum(pred, tgt):
+    t = 0
+    for w in pred:
+        if w in tgt:
+            t += 1
+    return t
+
+p=0.0
+
+for row in df.iterrows():
+    x = row[1]
+    src = x.values[0]
+    tgt = x.values[1].split()
+
+    pred = predictor.predict(src.split() )
+    if pred[-1] == '<eos>':
+        pred = pred[:-1]
+
+    len_output_total += len(pred)
+    len_tgt_total += len(tgt)
+
+
+    correct_total += correctnum(pred, tgt)
+
+    if a % 1000 == 0 and a > 0:
+        print(a)
+    a += 1
+
+precision = float(correct_total) / len_output_total
+recall = float(correct_total) / len_tgt_total
+f1 = 2*(recall * precision) / (recall + precision)
+print(f'Precision: {precision}')
+print(f'Recall: {recall}')
+print(f'F1: {f1}')

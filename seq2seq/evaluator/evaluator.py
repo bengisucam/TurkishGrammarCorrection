@@ -19,7 +19,7 @@ class Evaluator(object):
         self.loss = loss
         self.batch_size = batch_size
 
-    def evaluate(self, model,bilstm, data, device):
+    def evaluate(self, model,bilstm, data, device,src_vocab,tgt_vocab):
         """ Evaluate a model on given dataset and return performance.
 
         Args:
@@ -39,11 +39,10 @@ class Evaluator(object):
 
         batch_iterator = torchtext.data.BucketIterator(
             dataset=data, batch_size=self.batch_size,
-            sort=True, sort_key=lambda x: len(x.src),
+            sort=True, sort_key=lambda x: len(x),
             device=device, train=False)
-        tgt_vocab = data.fields[seq2seq.tgt_field_name].vocab
-        pad = tgt_vocab.stoi[data.fields[seq2seq.tgt_field_name].pad_token]
-
+        pad = tgt_vocab.stoi['<pad>']
+        print(type(batch_iterator))
         with torch.no_grad():
             for batch in batch_iterator:
                 input_variables, input_lengths = getattr(batch, seq2seq.src_field_name)

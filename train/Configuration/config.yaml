@@ -27,7 +27,7 @@ model:
     encoder_lstm_out_decoder_in: 256
     bidirectional: True
 
-    device: 'cpu'
+    device: 'cuda'
     # 'lstm' or 'gru'
     rnn_cell: 'lstm'
 
