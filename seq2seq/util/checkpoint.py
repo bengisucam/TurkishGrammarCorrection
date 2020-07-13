@@ -69,11 +69,11 @@ class Checkpoint(object):
         if not os.path.exists(path):
             # shutil.rmtree(path)
             os.makedirs(path)
-        torch.save({'epoch': self.epoch,
-                    'step': self.step,
-                    'optimizer': self.optimizer
-                   },
-                   os.path.join(path, self.TRAINER_STATE_NAME))
+        # torch.save({'epoch': self.epoch,
+        #             'step': self.step,
+        #             'optimizer': self.optimizer
+        #            },
+        #            os.path.join(path, self.TRAINER_STATE_NAME))
         torch.save(self.model, os.path.join(path, self.MODEL_NAME))
 
         with open(os.path.join(path, self.INPUT_VOCAB_FILE), 'wb') as fout:

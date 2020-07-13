@@ -9,14 +9,14 @@ dataset:
 
     embeddings:
         use: True
-        update: True
+        update: False
 
 
-    max_length: 16
-    max_vocab: 200000
+    max_length: 14
+    max_vocab: 500000
 
 model:
-    hidden_size: 256
+    hidden_size: 300
     bidirectional: True
 
     device: 'cuda'
@@ -35,8 +35,8 @@ model:
 
     use_attention: True
     n_layers: 2
-    dropout_input: 0.2
-    dropout_output: 0.2
+    dropout_input: 0.25
+    dropout_output: 0.25
 
     variable_lengths: True
 
@@ -46,7 +46,7 @@ train:
     batch_size: 64
     epoch: 10
     early_stop_threshold: 2
-    print_every: 250
+    print_every: 500
     checkpoint_every: 1
 
 save_dir: './Experiments'

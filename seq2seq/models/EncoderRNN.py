@@ -50,7 +50,7 @@ class EncoderRNN(BaseRNN):
         if embedding is not None:
             self.embedding.weight = nn.Parameter(embedding)
         self.embedding.weight.requires_grad = update_embedding
-        self.rnn = self.rnn_cell(hidden_size, hidden_size, n_layers,
+        self.rnn = self.rnn_cell(300, 256, n_layers,
                                  batch_first=True, bidirectional=bidirectional, dropout=dropout_p)
 
     def forward(self, input_var, input_lengths=None,embeddings=None):
